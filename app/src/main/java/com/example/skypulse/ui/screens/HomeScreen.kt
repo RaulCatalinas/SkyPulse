@@ -11,6 +11,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,7 @@ import com.example.skypulse.components.weathers.DailyForecastCard
 import com.example.skypulse.components.weathers.HourlyForecastRow
 import com.example.skypulse.components.weathers.WeatherDetailsGrid
 import com.example.skypulse.mocks.MockData
+import com.example.skypulse.permissions.rememberLocationPermission
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +36,11 @@ fun HomeScreen(
     val hourlyForecasts = MockData.getHourlyForecasts()
     val dailyForecasts = MockData.getDailyForecasts()
 
+    val (
+        permissionsGranted,
+        requestPermission
+    ) = rememberLocationPermission()
+
     Scaffold(
         topBar = {
             CreateTopBar(
@@ -43,58 +50,66 @@ fun HomeScreen(
             )
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Current Weather Card
-            item {
-                CurrentWeatherCard(
-                    weatherData = weatherData,
-                    onClick = { /* Navigate to details */ }
-                )
-            }
+        LaunchedEffect(Unit) {
+            if (!permissionsGranted) requestPermission()
+        }
 
-            // Weather Details Grid
-            item {
-                WeatherDetailsGrid(weatherData = weatherData)
-            }
+        if (permissionsGranted) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Current Weather Card
+                item {
+                    CurrentWeatherCard(
+                        weatherData = weatherData,
+                        onClick = { /* Navigate to details */ }
+                    )
+                }
 
-            // Hourly Forecast Section
-            item {
-                SectionHeader(title = "Hourly Forecast")
-                HourlyForecastRow(
-                    forecasts = hourlyForecasts,
-                    onItemClick = { forecast ->
-                        // Handle hourly forecast click
-                        println("Clicked on ${forecast.time}")
-                    }
-                )
-            }
+                // Weather Details Grid
+                item {
+                    WeatherDetailsGrid(weatherData = weatherData)
+                }
 
-            // Daily Forecast Section
-            item {
-                SectionHeader(title = "7-Day Forecast")
-            }
+                // Hourly Forecast Section
+                item {
+                    SectionHeader(title = "Hourly Forecast")
+                    HourlyForecastRow(
+                        forecasts = hourlyForecasts,
+                        onItemClick = { forecast ->
+                            // Handle hourly forecast click
+                            println("Clicked on ${forecast.time}")
+                        }
+                    )
+                }
 
-            // Daily Forecast Items - CORREGIDO
-            items(items = dailyForecasts) { forecast ->
-                DailyForecastCard(
-                    forecast = forecast,
-                    onClick = {
-                        // Handle daily forecast click
-                        println("Clicked on ${forecast.day}")
-                    }
-                )
-            }
+                // Daily Forecast Section
+                item {
+                    SectionHeader(title = "7-Day Forecast")
+                }
 
-            // Bottom spacing
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
+                // Daily Forecast Items - CORREGIDO
+                items(items = dailyForecasts) { forecast ->
+                    DailyForecastCard(
+                        forecast = forecast,
+                        onClick = {
+                            // Handle daily forecast click
+                            println("Clicked on ${forecast.day}")
+                        }
+                    )
+                }
+
+                // Bottom spacing
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
+        } else {
+            // TODO: Show PermissionDeniedScreen with options to request permission or search manually
         }
     }
 }
