@@ -22,7 +22,7 @@ import com.example.skypulse.components.weathers.DailyForecastCard
 import com.example.skypulse.components.weathers.HourlyForecastRow
 import com.example.skypulse.components.weathers.WeatherDetailsGrid
 import com.example.skypulse.mocks.MockData
-import com.example.skypulse.permissions.rememberLocationPermission
+import com.example.skypulse.services.LocationService
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +39,7 @@ fun HomeScreen(
     val (
         permissionsGranted,
         requestPermission
-    ) = rememberLocationPermission()
+    ) = LocationService.rememberLocationPermission()
 
     Scaffold(
         topBar = {
