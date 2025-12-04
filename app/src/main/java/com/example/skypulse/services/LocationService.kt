@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
+import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -112,7 +114,7 @@ object LocationService {
      * @param context Application context
      * @param latitude Latitude coordinate
      * @param longitude Longitude coordinate
-     * @return LocationInfo with latitude, longitude, city and country
+     * @return LocationInfo with city and country
      */
     suspend fun getLocationInfo(
         context: Context,
@@ -122,58 +124,56 @@ object LocationService {
         return suspendCoroutine { continuation ->
             try {
                 val geocoder = Geocoder(context)
+                var addresses: List<Address>?
 
-                // getFromLocation requiere API 33+, usar version compatible
-                val addresses: List<Address>? =
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                        var result: List<Address>? = null
-                        geocoder.getFromLocation(latitude, longitude, 1) { addresses ->
-                            result = addresses
-                        }
-                        result
-                    } else {
-                        @Suppress("DEPRECATION")
-                        geocoder.getFromLocation(latitude, longitude, 1)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    geocoder.getFromLocation(latitude, longitude, 1) { addrs ->
+                        addresses = addrs
+                        // Now resume the outer continuation
+                        handleAddresses(addresses, continuation)
                     }
-
-                if (!addresses.isNullOrEmpty()) {
-                    val address = addresses[0]
-                    val city = address.locality ?: address.adminArea ?: "Unknown"
-                    val country = address.countryName ?: "Unknown"
-
-                    Log.d(
-                        "LocationService",
-                        "Geocoded location: City=$city, Country=$country"
-                    )
-
-                    continuation.resume(
-                        LocationInfo(
-                            city = city,
-                            country = country
-                        )
-                    )
                 } else {
-                    Log.e("LocationService", "No address found for coordinates")
-                    continuation.resume(
-                        LocationInfo(
-                            city = null,
-                            country = null
-                        )
-                    )
+                    @Suppress("DEPRECATION")
+                    addresses = geocoder.getFromLocation(latitude, longitude, 1)
+
+                    handleAddresses(addresses, continuation)
                 }
             } catch (e: Exception) {
-                Log.e(
-                    "LocationService",
-                    "Error during geocoding: ${e.message}",
-                    e
-                )
+                Log.e("LocationService", "Error: ${e.message}", e)
                 continuation.resume(
                     LocationInfo(
-                        city = null,
-                        country = null
+                        city = "Unknown",
+                        country = "Unknown"
                     )
                 )
             }
+        }
+    }
+
+    private fun handleAddresses(
+        addresses: List<Address>?,
+        continuation: Continuation<LocationInfo>
+    ) {
+        if (addresses.isNullOrEmpty()) {
+            continuation.resume(
+                LocationInfo(
+                    city = "Unknown",
+                    country = "Unknown"
+                )
+            )
+        } else {
+            val address = addresses[0]
+            val city = address.locality ?: address.adminArea
+            val country = address.countryName
+
+            Log.d("LocationService", "Geocoded: City=$city, Country=$country")
+
+            continuation.resume(
+                LocationInfo(
+                    city = city,
+                    country = country
+                )
+            )
         }
     }
 }
