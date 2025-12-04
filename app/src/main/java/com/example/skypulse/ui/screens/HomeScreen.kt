@@ -31,6 +31,26 @@ import com.example.skypulse.services.LocationService
 @Composable
 fun HomeScreen(
     onSearchClick: () -> Unit = {},
+    onFavoritesClick: () -> Unit = {}
+) {
+    // Usar SettingsScreen.WithDrawer para envolver el contenido con el drawer
+    SettingsScreen.WithDrawer { onSettingsClick ->
+        HomeScreenContent(
+            onSearchClick = onSearchClick,
+            onFavoritesClick = onFavoritesClick,
+            onSettingsClick = onSettingsClick
+        )
+    }
+}
+
+/**
+ * Contenido principal de la pantalla de inicio
+ * Se enfoca únicamente en mostrar el clima
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeScreenContent(
+    onSearchClick: () -> Unit = {},
     onFavoritesClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
@@ -77,6 +97,7 @@ fun HomeScreen(
                     println("Location: ${locationInfo.city}, ${locationInfo.country}")
                 }
             }
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -114,7 +135,7 @@ fun HomeScreen(
                     SectionHeader(title = "7-Day Forecast")
                 }
 
-                // Daily Forecast Items - CORREGIDO
+                // Daily Forecast Items
                 items(items = dailyForecasts) { forecast ->
                     DailyForecastCard(
                         forecast = forecast,
