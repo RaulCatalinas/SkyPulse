@@ -32,26 +32,42 @@ object LocationService {
     @Composable
     fun rememberLocationPermission(): Pair<Boolean, () -> Unit> {
         val context = LocalContext.current
-        var permissionsGranted by remember { mutableStateOf(false) }
+        var locationPermissionGranted by remember { mutableStateOf(false) }
+        var internetPermissionGranted by remember { mutableStateOf(false) }
 
+        // Launcher for multiple permissions
         val permissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
-            permissionsGranted = isGranted
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissionsMap ->
+            locationPermissionGranted =
+                permissionsMap[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+            internetPermissionGranted = permissionsMap[Manifest.permission.INTERNET] ?: false
         }
 
         LaunchedEffect(Unit) {
-            permissionsGranted = ContextCompat.checkSelfPermission(
+            locationPermissionGranted = ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+            internetPermissionGranted = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.INTERNET
             ) == PackageManager.PERMISSION_GRANTED
         }
 
         val requestPermission = {
-            permissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.INTERNET
+                )
+            )
         }
 
-        return Pair(permissionsGranted, requestPermission)
+        val allPermissionsGranted = locationPermissionGranted && internetPermissionGranted
+
+        return Pair(allPermissionsGranted, requestPermission)
     }
 
     /**
