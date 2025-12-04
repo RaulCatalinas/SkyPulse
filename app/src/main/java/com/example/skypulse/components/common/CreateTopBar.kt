@@ -35,16 +35,18 @@ fun CreateTopBar(
                 iconDescription = "Favorites",
                 onClick = onFavoritesClick
             )
-            CreateIconButton(
-                icon = Icons.Default.Settings,
-                iconDescription = "Settings",
-                onClick = onSettingsClick
-            )
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary,
             actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-        )
+        ),
+        navigationIcon = {
+            CreateIconButton(
+                icon = Icons.Default.Settings,
+                iconDescription = "Settings",
+                onClick = onSettingsClick
+            )
+        }
     )
 }

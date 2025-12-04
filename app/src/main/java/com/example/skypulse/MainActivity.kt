@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.example.skypulse.services.WeatherService
 import com.example.skypulse.ui.screens.HomeScreen
+import com.example.skypulse.ui.screens.SettingsScreen
 import com.example.skypulse.ui.theme.SkyPulseTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,7 +21,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             SkyPulseTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    HomeScreen()
+                    SettingsScreen.createUI()
+                    HomeScreen(onSettingsClick = SettingsScreen::toggleDrawerState)
                 }
             }
         }
