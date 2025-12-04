@@ -12,8 +12,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.skypulse.components.common.CreateTopBar
 import com.example.skypulse.components.sections.SectionHeader
@@ -50,11 +53,30 @@ fun HomeScreen(
             )
         }
     ) { paddingValues ->
+        val context = LocalContext.current
+        val locationState = remember { mutableStateOf(Pair<Double?, Double?>(null, null)) }
+        val locationInfoState = remember { mutableStateOf<String?>(null) }
+
         LaunchedEffect(Unit) {
             if (!permissionsGranted) requestPermission()
         }
 
         if (permissionsGranted) {
+            LaunchedEffect(Unit) {
+                val location = LocationService.getUserLocation(context)
+                locationState.value = location
+                println("Lat: ${location.first}, Lon: ${location.second}")
+
+                if (location.first != null && location.second != null) {
+                    val locationInfo = LocationService.getLocationInfo(
+                        context,
+                        location.first!!,
+                        location.second!!
+                    )
+                    locationInfoState.value = "${locationInfo.city}, ${locationInfo.country}"
+                    println("Location: ${locationInfo.city}, ${locationInfo.country}")
+                }
+            }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()

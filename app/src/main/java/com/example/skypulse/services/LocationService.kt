@@ -3,6 +3,8 @@ package com.example.skypulse.services
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -18,6 +20,11 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
+data class LocationInfo(
+    val city: String?,
+    val country: String?
+)
 
 object LocationService {
     @Composable
@@ -92,6 +99,78 @@ object LocationService {
                     Pair(
                         null,
                         null
+                    )
+                )
+            }
+        }
+    }
+
+    /**
+     * Get location information including city and country from coordinates
+     * Uses reverse geocoding
+     *
+     * @param context Application context
+     * @param latitude Latitude coordinate
+     * @param longitude Longitude coordinate
+     * @return LocationInfo with latitude, longitude, city and country
+     */
+    suspend fun getLocationInfo(
+        context: Context,
+        latitude: Double,
+        longitude: Double
+    ): LocationInfo {
+        return suspendCoroutine { continuation ->
+            try {
+                val geocoder = Geocoder(context)
+
+                // getFromLocation requiere API 33+, usar version compatible
+                val addresses: List<Address>? =
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                        var result: List<Address>? = null
+                        geocoder.getFromLocation(latitude, longitude, 1) { addresses ->
+                            result = addresses
+                        }
+                        result
+                    } else {
+                        @Suppress("DEPRECATION")
+                        geocoder.getFromLocation(latitude, longitude, 1)
+                    }
+
+                if (!addresses.isNullOrEmpty()) {
+                    val address = addresses[0]
+                    val city = address.locality ?: address.adminArea ?: "Unknown"
+                    val country = address.countryName ?: "Unknown"
+
+                    Log.d(
+                        "LocationService",
+                        "Geocoded location: City=$city, Country=$country"
+                    )
+
+                    continuation.resume(
+                        LocationInfo(
+                            city = city,
+                            country = country
+                        )
+                    )
+                } else {
+                    Log.e("LocationService", "No address found for coordinates")
+                    continuation.resume(
+                        LocationInfo(
+                            city = null,
+                            country = null
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e(
+                    "LocationService",
+                    "Error during geocoding: ${e.message}",
+                    e
+                )
+                continuation.resume(
+                    LocationInfo(
+                        city = null,
+                        country = null
                     )
                 )
             }
