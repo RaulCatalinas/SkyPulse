@@ -31,6 +31,7 @@ object SettingsScreen {
     fun createUI() {
         drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         scope = rememberCoroutineScope()
+
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
