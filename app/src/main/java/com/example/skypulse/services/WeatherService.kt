@@ -1,4 +1,4 @@
-package com.example.skypulse.api
+package com.example.skypulse.services
 
 import com.example.skypulse.constants.API_URL
 import io.ktor.client.HttpClient
@@ -8,7 +8,7 @@ import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-object WeatherApi {
+object WeatherService {
     private val client = HttpClient(Android) {
         install(ContentNegotiation) {
             json(
