@@ -41,7 +41,8 @@ object LocationService {
         ) { permissionsMap ->
             locationPermissionGranted =
                 permissionsMap[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
-            internetPermissionGranted = permissionsMap[Manifest.permission.INTERNET] ?: false
+            internetPermissionGranted =
+                permissionsMap[Manifest.permission.INTERNET] ?: false
         }
 
         LaunchedEffect(Unit) {
