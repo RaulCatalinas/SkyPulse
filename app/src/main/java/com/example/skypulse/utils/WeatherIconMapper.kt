@@ -35,8 +35,7 @@ object WeatherIconMapper {
             "few clouds" -> Icons.Filled.CloudQueue
 
             // Rain
-            "rain", "rainy", "moderate rain" -> Icons.Filled.Grain
-            "light rain", "light shower" -> Icons.Filled.WaterDrop
+            "light rain", "light shower", "rain", "rainy", "moderate rain" -> Icons.Filled.WaterDrop
             "heavy rain", "shower rain", "heavy shower" -> Icons.Filled.Grain
             "drizzle", "mist rain" -> Icons.Filled.Opacity
 
@@ -44,8 +43,7 @@ object WeatherIconMapper {
             "thunderstorm", "storm", "lightning" -> Icons.Filled.Thunderstorm
 
             // Snow
-            "snow", "snowy", "light snow" -> Icons.Filled.AcUnit
-            "heavy snow", "blizzard" -> Icons.Filled.AcUnit
+            "snow", "snowy", "light snow", "heavy snow", "blizzard" -> Icons.Filled.AcUnit
 
             // Fog/Mist
             "fog", "foggy", "mist", "haze" -> Icons.Filled.Cloud
