@@ -26,6 +26,7 @@ import com.example.skypulse.components.weathers.HourlyForecastRow
 import com.example.skypulse.components.weathers.WeatherDetailsGrid
 import com.example.skypulse.mocks.MockData
 import com.example.skypulse.services.LocationService
+import com.example.skypulse.services.WeatherService
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,10 +44,7 @@ fun HomeScreen(
     }
 }
 
-/**
- * Contenido principal de la pantalla de inicio
- * Se enfoca únicamente en mostrar el clima
- */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreenContent(
@@ -88,6 +86,8 @@ private fun HomeScreenContent(
                 println("Lat: ${location.first}, Lon: ${location.second}")
 
                 if (location.first != null && location.second != null) {
+                    WeatherService.getWeatherData(location.first!!, location.second!!)
+
                     val locationInfo = LocationService.getLocationInfo(
                         context,
                         location.first!!,

@@ -61,12 +61,15 @@ object LocationService {
             permissionLauncher.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.INTERNET
                 )
             )
         }
 
-        val allPermissionsGranted = locationPermissionGranted && internetPermissionGranted
+        // Fine location is optional - we only require coarse location and internet
+        val allPermissionsGranted =
+            locationPermissionGranted && internetPermissionGranted
 
         return Pair(allPermissionsGranted, requestPermission)
     }
