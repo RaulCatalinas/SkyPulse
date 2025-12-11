@@ -1,4 +1,4 @@
-package com.example.skypulse.models
+package com.example.skypulse.types
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
