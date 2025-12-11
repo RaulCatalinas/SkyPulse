@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -18,11 +18,17 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.skypulse.components.common.CreateDropdown
 import com.example.skypulse.components.common.CreateIcon
 import com.example.skypulse.components.common.CreateText
+import com.example.skypulse.components.common.rememberDropdownState
+import com.example.skypulse.enums.ThemeMode
+import com.example.skypulse.managers.ThemeManager
 import kotlinx.coroutines.launch
 
 /**
@@ -30,7 +36,6 @@ import kotlinx.coroutines.launch
  * Manages the drawer state and its content
  */
 object SettingsScreen {
-
     /**
      * Main composable that wraps the content with the drawer
      *
@@ -54,9 +59,7 @@ object SettingsScreen {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
-                DrawerContent(
-                    onDrawerClose = { scope.launch { drawerState.close() } }
-                )
+                DrawerContent()
             }
         ) {
             // Pass the settings callback to the main content
@@ -69,9 +72,11 @@ object SettingsScreen {
      */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun DrawerContent(
-        onDrawerClose: () -> Unit = {}
-    ) {
+    private fun DrawerContent() {
+        val themeDropdownState = rememberDropdownState()
+        val languageDropdownState = rememberDropdownState()
+        val themeIcon = remember { mutableStateOf(ThemeManager.getIconTheme()) }
+
         ModalDrawerSheet(
             modifier = Modifier.fillMaxWidth(0.75f)
         ) {
@@ -89,20 +94,48 @@ object SettingsScreen {
                 HorizontalDivider()
 
                 NavigationDrawerItem(
-                    label = { CreateText("Dark Mode") },
+                    label = { CreateText("Change theme") },
                     selected = false,
                     icon = {
                         CreateIcon(
-                            Icons.Filled.DarkMode,
+                            themeIcon.value,
                             "Change theme"
                         )
                     },
                     onClick = {
-                        println("Changing theme...")
-                        handleThemeChange()
-                        onDrawerClose()
+                        themeDropdownState.toggle()
+                        languageDropdownState.closeIfNecessary()
                     }
                 )
+
+                CreateDropdown(themeDropdownState) {
+                    DropdownMenuItem(
+                        text = { CreateText("Light") },
+                        onClick = {
+                            ThemeManager.setThemeMode(ThemeMode.LIGHT)
+                            themeIcon.value = ThemeManager.getIconTheme()
+                            themeDropdownState.toggle()
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = { CreateText("Dark") },
+                        onClick = {
+                            ThemeManager.setThemeMode(ThemeMode.DARK)
+                            themeIcon.value = ThemeManager.getIconTheme()
+                            themeDropdownState.toggle()
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = { CreateText("Synchronise with OS") },
+                        onClick = {
+                            ThemeManager.setThemeMode(ThemeMode.SYSTEM)
+                            themeIcon.value = ThemeManager.getIconTheme()
+                            themeDropdownState.toggle()
+                        }
+                    )
+                }
 
                 NavigationDrawerItem(
                     label = { CreateText("Language") },
@@ -114,31 +147,30 @@ object SettingsScreen {
                         )
                     },
                     onClick = {
-                        println("Changing language...")
-                        handleLanguageChange()
-                        onDrawerClose()
+                        languageDropdownState.toggle()
+                        themeDropdownState.closeIfNecessary()
                     }
                 )
+
+                CreateDropdown(languageDropdownState) {
+                    DropdownMenuItem(
+                        text = { CreateText("Spanish") },
+                        onClick = {
+                            println("Changing the app language to spanish")
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = { CreateText("English") },
+                        onClick = {
+                            println("Changing the app language to english")
+                        }
+                    )
+                }
 
                 // Extra space to accommodate language options (Spanish/English)
                 Spacer(Modifier.weight(1f))
             }
         }
-    }
-
-    /**
-     * Logic to change theme
-     */
-    private fun handleThemeChange() {
-        // TODO: Implement theme change logic
-        println("Theme changed")
-    }
-
-    /**
-     * Logic to change language
-     */
-    private fun handleLanguageChange() {
-        // TODO: Implement language change logic
-        println("Language changed")
     }
 }
