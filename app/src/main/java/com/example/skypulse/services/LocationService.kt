@@ -18,15 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.example.skypulse.types.LocationInfo
 import com.google.android.gms.location.LocationServices
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-
-data class LocationInfo(
-    val city: String?,
-    val country: String?
-)
 
 object LocationService {
     @Composable
