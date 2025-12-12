@@ -86,7 +86,11 @@ private fun HomeScreenContent(
                 println("Lat: ${location.first}, Lon: ${location.second}")
 
                 if (location.first != null && location.second != null) {
-                    WeatherService.getWeatherData(location.first!!, location.second!!)
+                    val weatherData =
+                        WeatherService.getWeatherData(location.first!!, location.second!!)
+
+                    if (weatherData == null) println("Error obtaining weather data")
+                    else println(weatherData)
 
                     val locationInfo = LocationService.getLocationInfo(
                         context,

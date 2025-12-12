@@ -1,141 +1,133 @@
 package com.example.skypulse.types
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import com.google.gson.annotations.SerializedName
 
 /**
  * Current Weather API Response
  * Endpoint: /weather
  */
-@Serializable
 data class WeatherApiResponse(
-    @SerialName("coord")
+    @SerializedName("coord")
     val coordinates: CoordinatesDto,
 
-    @SerialName("weather")
+    @SerializedName("weather")
     val weather: List<WeatherDto>,
 
-    @SerialName("base")
+    @SerializedName("base")
     val base: String,
 
-    @SerialName("main")
+    @SerializedName("main")
     val main: MainDto,
 
-    @SerialName("visibility")
+    @SerializedName("visibility")
     val visibility: Int,
 
-    @SerialName("wind")
+    @SerializedName("wind")
     val wind: WindDto,
 
-    @SerialName("clouds")
+    @SerializedName("clouds")
     val clouds: CloudsDto,
 
-    @SerialName("dt")
+    @SerializedName("dt")
     val timestamp: Long,
 
-    @SerialName("sys")
+    @SerializedName("sys")
     val sys: SysDto,
 
-    @SerialName("timezone")
+    @SerializedName("timezone")
     val timezone: Int,
 
-    @SerialName("id")
+    @SerializedName("id")
     val cityId: Int,
 
-    @SerialName("name")
+    @SerializedName("name")
     val cityName: String,
 
-    @SerialName("cod")
+    @SerializedName("cod")
     val statusCode: Int,
 
-    @SerialName("icon")
+    @SerializedName("icon")
     val icon: String
 )
 
-@Serializable
 data class CoordinatesDto(
-    @SerialName("lon")
+    @SerializedName("lon")
     val longitude: Double,
 
-    @SerialName("lat")
+    @SerializedName("lat")
     val latitude: Double
 )
 
-@Serializable
 data class WeatherDto(
-    @SerialName("id")
+    @SerializedName("id")
     val id: Int,
 
-    @SerialName("main")
+    @SerializedName("main")
     val main: String,
 
-    @SerialName("description")
+    @SerializedName("description")
     val description: String,
 
-    @SerialName("icon")
+    @SerializedName("icon")
     val icon: String
 )
 
-@Serializable
 data class MainDto(
-    @SerialName("temp")
+    @SerializedName("temp")
     val temperature: Double,
 
-    @SerialName("feels_like")
+    @SerializedName("feels_like")
     val feelsLike: Double,
 
-    @SerialName("temp_min")
+    @SerializedName("temp_min")
     val tempMin: Double,
 
-    @SerialName("temp_max")
+    @SerializedName("temp_max")
     val tempMax: Double,
 
-    @SerialName("pressure")
+    @SerializedName("pressure")
     val pressure: Int,
 
-    @SerialName("humidity")
+    @SerializedName("humidity")
     val humidity: Int,
 
-    @SerialName("sea_level")
+    @SerializedName("sea_level")
     val seaLevel: Int? = null,
 
-    @SerialName("grnd_level")
+    @SerializedName("grnd_level")
     val groundLevel: Int? = null
 )
 
-@Serializable
 data class WindDto(
-    @SerialName("speed")
+    @SerializedName("speed")
     val speed: Double,
 
-    @SerialName("deg")
+    @SerializedName("deg")
     val degrees: Int,
 
-    @SerialName("gust")
+    @SerializedName("gust")
     val gust: Double? = null
 )
 
-@Serializable
 data class CloudsDto(
-    @SerialName("all")
+    @SerializedName("all")
     val cloudiness: Int
 )
 
-@Serializable
 data class SysDto(
-    @SerialName("type")
+    @SerializedName("type")
     val type: Int? = null,
 
-    @SerialName("id")
+    @SerializedName("id")
     val id: Int? = null,
 
-    @SerialName("country")
+    @SerializedName("country")
     val country: String,
 
-    @SerialName("sunrise")
+    @SerializedName("sunrise")
     val sunrise: Long,
 
-    @SerialName("sunset")
+    @SerializedName("sunset")
     val sunset: Long
 )
 
@@ -145,102 +137,96 @@ data class SysDto(
  * 5 Day / 3 Hour Forecast API Response
  * Endpoint: /forecast
  */
-@Serializable
 data class ForecastApiResponse(
-    @SerialName("cod")
+    @SerializedName("cod")
     val statusCode: String,
 
-    @SerialName("message")
+    @SerializedName("message")
     val message: Int,
 
-    @SerialName("cnt")
+    @SerializedName("cnt")
     val count: Int,
 
-    @SerialName("list")
+    @SerializedName("list")
     val forecasts: List<ForecastItemDto>,
 
-    @SerialName("city")
+    @SerializedName("city")
     val city: CityDto
 )
 
-@Serializable
 data class ForecastItemDto(
-    @SerialName("dt")
+    @SerializedName("dt")
     val timestamp: Long,
 
-    @SerialName("main")
+    @SerializedName("main")
     val main: MainDto,
 
-    @SerialName("weather")
+    @SerializedName("weather")
     val weather: List<WeatherDto>,
 
-    @SerialName("clouds")
+    @SerializedName("clouds")
     val clouds: CloudsDto,
 
-    @SerialName("wind")
+    @SerializedName("wind")
     val wind: WindDto,
 
-    @SerialName("visibility")
+    @SerializedName("visibility")
     val visibility: Int,
 
-    @SerialName("pop")
+    @SerializedName("pop")
     val precipitationProbability: Double,
 
-    @SerialName("sys")
+    @SerializedName("sys")
     val sys: ForecastSysDto,
 
-    @SerialName("dt_txt")
+    @SerializedName("dt_txt")
     val dateTimeText: String,
 
-    @SerialName("rain")
+    @SerializedName("rain")
     val rain: RainDto? = null,
 
-    @SerialName("snow")
+    @SerializedName("snow")
     val snow: SnowDto? = null
 )
 
-@Serializable
 data class ForecastSysDto(
-    @SerialName("pod")
+    @SerializedName("pod")
     val partOfDay: String // "d" for day, "n" for night
 )
 
-@Serializable
 data class RainDto(
-    @SerialName("3h")
+    @SerializedName("3h")
     val threeHours: Double? = null
 )
 
-@Serializable
 data class SnowDto(
-    @SerialName("3h")
+    @SerializedName("3h")
     val threeHours: Double? = null
 )
 
-@Serializable
 data class CityDto(
-    @SerialName("id")
+    @SerializedName("id")
     val id: Int,
 
-    @SerialName("name")
+    @SerializedName("name")
     val name: String,
 
-    @SerialName("coord")
+    @SerializedName("coord")
     val coordinates: CoordinatesDto,
 
-    @SerialName("country")
+    @SerializedName("country")
     val country: String,
 
-    @SerialName("population")
+    @SerializedName("population")
     val population: Int,
 
-    @SerialName("timezone")
+    @SerializedName("timezone")
     val timezone: Int,
 
-    @SerialName("sunrise")
+    @SerializedName("sunrise")
     val sunrise: Long,
 
-    @SerialName("sunset")
+    @SerializedName("sunset")
     val sunset: Long
 )
 
@@ -250,23 +236,22 @@ data class CityDto(
  * City Search Result from Geocoding API
  * Endpoint: /geo/1.0/direct
  */
-@Serializable
 data class CitySearchDto(
-    @SerialName("name")
+    @SerializedName("name")
     val name: String,
 
-    @SerialName("lat")
+    @SerializedName("lat")
     val latitude: Double,
 
-    @SerialName("lon")
+    @SerializedName("lon")
     val longitude: Double,
 
-    @SerialName("country")
+    @SerializedName("country")
     val country: String,
 
-    @SerialName("state")
+    @SerializedName("state")
     val state: String? = null,
 
-    @SerialName("local_names")
+    @SerializedName("local_names")
     val localNames: Map<String, String>? = null
 )
