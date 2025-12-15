@@ -7,14 +7,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.skypulse.models.WeatherData
+import com.example.skypulse.types.WeatherApiResponse
 
 /**
- * Grid of weather details (humidity, wind, UV, etc.)
+ * Grid of weather details (humidity, wind, etc.)
  */
 @Composable
 fun WeatherDetailsGrid(
-    weatherData: WeatherData,
+    weatherData: WeatherApiResponse,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -26,17 +26,12 @@ fun WeatherDetailsGrid(
         WeatherDetailItem(
             icon = "💧",
             label = "Humidity",
-            value = "${weatherData.humidity}%"
+            value = "${weatherData.main.humidity}%"
         )
         WeatherDetailItem(
             icon = "💨",
             label = "Wind",
-            value = "${weatherData.windSpeed} km/h"
-        )
-        WeatherDetailItem(
-            icon = "☀️",
-            label = "UV Index",
-            value = "${weatherData.uvIndex}"
+            value = "${weatherData.wind.speed} km/h"
         )
     }
 }

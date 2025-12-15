@@ -25,14 +25,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skypulse.components.common.CreateIcon
 import com.example.skypulse.components.common.CreateText
-import com.example.skypulse.models.WeatherData
+import com.example.skypulse.types.WeatherApiResponse
 
 /**
  * Main weather card showing current conditions
  */
 @Composable
 fun CurrentWeatherCard(
-    weatherData: WeatherData,
+    weatherData: WeatherApiResponse,
+    location: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
@@ -72,7 +73,7 @@ fun CurrentWeatherCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     CreateText(
-                        text = weatherData.location,
+                        text = location,
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White
                     )
@@ -82,7 +83,7 @@ fun CurrentWeatherCard(
 
                 // Weather Icon (mock)
                 CreateText(
-                    text = "⛅",
+                    text = weatherData.icon,
                     fontSize = 72.sp
                 )
 
@@ -90,7 +91,7 @@ fun CurrentWeatherCard(
 
                 // Temperature
                 CreateText(
-                    text = "${weatherData.temperature}°",
+                    text = "${weatherData.main.temperature}°",
                     fontSize = 64.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -98,7 +99,7 @@ fun CurrentWeatherCard(
 
                 // Description
                 CreateText(
-                    text = weatherData.description,
+                    text = weatherData.weather[0].description,
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.White.copy(alpha = 0.9f)
                 )
@@ -107,7 +108,7 @@ fun CurrentWeatherCard(
 
                 // Feels like
                 CreateText(
-                    text = "Feels like ${weatherData.feelsLike}°",
+                    text = "Feels like ${weatherData.main.feelsLike}°",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.8f)
                 )

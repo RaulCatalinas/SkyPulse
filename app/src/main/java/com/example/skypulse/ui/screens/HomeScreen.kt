@@ -1,12 +1,11 @@
 package com.example.skypulse.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -17,16 +16,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import com.example.skypulse.components.common.CreateTopBar
-import com.example.skypulse.components.sections.SectionHeader
-import com.example.skypulse.components.weathers.CurrentWeatherCard
-import com.example.skypulse.components.weathers.DailyForecastCard
-import com.example.skypulse.components.weathers.HourlyForecastRow
-import com.example.skypulse.components.weathers.WeatherDetailsGrid
 import com.example.skypulse.mocks.MockData
 import com.example.skypulse.services.LocationService
 import com.example.skypulse.services.WeatherService
+import com.example.skypulse.types.WeatherApiResponse
+import com.example.skypulse.ui.renders.RenderWeatherData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,8 +47,6 @@ private fun HomeScreenContent(
     onFavoritesClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
-    // Mock data from MockData utility - will be replaced with ViewModel later
-    val weatherData = MockData.getWeatherData()
     val hourlyForecasts = MockData.getHourlyForecasts()
     val dailyForecasts = MockData.getDailyForecasts()
 
@@ -74,6 +67,8 @@ private fun HomeScreenContent(
         val context = LocalContext.current
         val locationState = remember { mutableStateOf(Pair<Double?, Double?>(null, null)) }
         val locationInfoState = remember { mutableStateOf<String?>(null) }
+        val weatherDataState = remember { mutableStateOf<WeatherApiResponse?>(null) }
+        val isLoadingState = remember { mutableStateOf(true) }
 
         LaunchedEffect(Unit) {
             if (!permissionsGranted) requestPermission()
@@ -81,83 +76,53 @@ private fun HomeScreenContent(
 
         if (permissionsGranted) {
             LaunchedEffect(Unit) {
+                isLoadingState.value = true
                 val location = LocationService.getUserLocation(context)
                 locationState.value = location
-                println("Lat: ${location.first}, Lon: ${location.second}")
 
-                if (location.first != null && location.second != null) {
-                    val weatherData =
-                        WeatherService.getWeatherData(location.first!!, location.second!!)
-
-                    if (weatherData == null) println("Error obtaining weather data")
-                    else println(weatherData)
-
-                    val locationInfo = LocationService.getLocationInfo(
-                        context,
-                        location.first!!,
-                        location.second!!
-                    )
-                    locationInfoState.value = "${locationInfo.city}, ${locationInfo.country}"
-                    println("Location: ${locationInfo.city}, ${locationInfo.country}")
+                if (location.first == null || location.second == null) {
+                    Log.e("HomeScreen", "Error obtaining the user's geolocation")
+                    isLoadingState.value = false
+                    return@LaunchedEffect
                 }
+
+                weatherDataState.value = WeatherService.getWeatherData(
+                    location.first!!,
+                    location.second!!
+                )
+
+                val locationInfo = LocationService.getLocationInfo(
+                    context,
+                    location.first!!,
+                    location.second!!
+                )
+
+                locationInfoState.value = "${locationInfo.city}, ${locationInfo.country}"
+                isLoadingState.value = false
             }
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .background(MaterialTheme.colorScheme.background),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Current Weather Card
-                item {
-                    CurrentWeatherCard(
-                        weatherData = weatherData,
-                        onClick = { /* Navigate to details */ }
-                    )
+            if (isLoadingState.value) {
+                // Show loading indicator
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .background(MaterialTheme.colorScheme.background),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
-
-                // Weather Details Grid
-                item {
-                    WeatherDetailsGrid(weatherData = weatherData)
-                }
-
-                // Hourly Forecast Section
-                item {
-                    SectionHeader(title = "Hourly Forecast")
-                    HourlyForecastRow(
-                        forecasts = hourlyForecasts,
-                        onItemClick = { forecast ->
-                            // Handle hourly forecast click
-                            println("Clicked on ${forecast.time}")
-                        }
-                    )
-                }
-
-                // Daily Forecast Section
-                item {
-                    SectionHeader(title = "7-Day Forecast")
-                }
-
-                // Daily Forecast Items
-                items(items = dailyForecasts) { forecast ->
-                    DailyForecastCard(
-                        forecast = forecast,
-                        onClick = {
-                            // Handle daily forecast click
-                            println("Clicked on ${forecast.day}")
-                        }
-                    )
-                }
-
-                // Bottom spacing
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+            } else {
+                RenderWeatherData(
+                    dailyForecasts,
+                    hourlyForecasts,
+                    weatherDataState.value!!,
+                    locationInfoState.value!!,
+                    paddingValues
+                )
             }
         } else {
             // TODO: Show PermissionDeniedScreen with options to request permission or search manually
         }
     }
 }
-
