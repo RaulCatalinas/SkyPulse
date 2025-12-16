@@ -14,6 +14,8 @@ import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 object WeatherService {
+    private const val TAG = "WeatherService"
+
     private val loggingInterceptor =
         HttpLoggingInterceptor()
             .apply {
@@ -44,29 +46,29 @@ object WeatherService {
             .build()
             .create(Api::class.java)
 
-    suspend fun getWeatherData(lat: Double, lon: Double): WeatherApiResponse? {
+    suspend fun getWeatherData(lat: Double, lon: Double): WeatherApiResponse {
         require(lat in -90.0..90.0) { "Latitude must be between -90 and 90" }
         require(lon in -180.0..180.0) { "Longitude must be between -180 and 180" }
 
         return try {
-            val response = api.getWeatherData(
-                BuildConfig.WEATHER_API_KEY,
-                lat,
-                lon
-            )
-
-            Log.d("WeatherService", "API response received successfully")
-            Log.v("WeatherService", "Response body: $response")
-
-            response
+            api
+                .getWeatherData(
+                    BuildConfig.WEATHER_API_KEY,
+                    lat,
+                    lon
+                )
+                .also {
+                    Log.d(TAG, "API response received successfully for ($lat, $lon)")
+                    Log.v(TAG, "Response: $it")
+                }
         } catch (e: SocketTimeoutException) {
-            Log.e("WeatherService", "Request timeout", e)
+            Log.e(TAG, "Request timeout for ($lat, $lon)", e)
             throw Exception("Request timeout. Please check your connection and try again.")
         } catch (e: IOException) {
-            Log.e("WeatherService", "Network error", e)
+            Log.e(TAG, "Network error for ($lat, $lon)", e)
             throw Exception("Network error. Please check your internet connection.")
         } catch (e: Exception) {
-            Log.e("WeatherService", "Unexpected error fetching weather data", e)
+            Log.e(TAG, "Unexpected error fetching weather data for ($lat, $lon)", e)
             throw Exception("Unexpected error: ${e.message}")
         }
     }
