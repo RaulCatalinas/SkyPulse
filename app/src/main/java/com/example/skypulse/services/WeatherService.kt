@@ -14,30 +14,38 @@ import java.net.SocketException
 import java.net.SocketTimeoutException
 
 object WeatherService {
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
+    private val loggingInterceptor =
+        HttpLoggingInterceptor()
+            .apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
 
-    private val okHttpClient = OkHttpClient.Builder()
-        .addInterceptor(loggingInterceptor)
-        .build()
+    private val okHttpClient =
+        OkHttpClient
+            .Builder()
+            .apply {
+                addInterceptor(loggingInterceptor)
+            }
+            .build()
 
     private val api =
         Retrofit
             .Builder()
-            .baseUrl(BASE_API_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .apply {
+                baseUrl(BASE_API_URL)
+                client(okHttpClient)
+                addConverterFactory(GsonConverterFactory.create())
+            }
             .build()
             .create(Api::class.java)
 
     suspend fun getWeatherData(lat: Double, lon: Double): WeatherApiResponse? {
         // Validate input parameters
-        if (lat < -90 || lat > 90) {
+        if (lat !in -90.0..90.0) {
             Log.e("WeatherService", "Invalid latitude: $lat")
             throw IllegalArgumentException("Latitude must be between -90 and 90")
         }
-        if (lon < -180 || lon > 180) {
+        if (lon !in -180.0..180.0) {
             Log.e("WeatherService", "Invalid longitude: $lon")
             throw IllegalArgumentException("Longitude must be between -180 and 180")
         }
