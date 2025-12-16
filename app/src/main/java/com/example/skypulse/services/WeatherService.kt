@@ -10,14 +10,16 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
-import java.net.SocketException
 import java.net.SocketTimeoutException
+import java.util.concurrent.TimeUnit
 
 object WeatherService {
     private val loggingInterceptor =
         HttpLoggingInterceptor()
             .apply {
-                level = HttpLoggingInterceptor.Level.BODY
+                level =
+                    if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+                    else HttpLoggingInterceptor.Level.NONE
             }
 
     private val okHttpClient =
@@ -25,6 +27,9 @@ object WeatherService {
             .Builder()
             .apply {
                 addInterceptor(loggingInterceptor)
+                connectTimeout(10, TimeUnit.SECONDS)
+                readTimeout(15, TimeUnit.SECONDS)
+                writeTimeout(10, TimeUnit.SECONDS)
             }
             .build()
 
@@ -40,15 +45,8 @@ object WeatherService {
             .create(Api::class.java)
 
     suspend fun getWeatherData(lat: Double, lon: Double): WeatherApiResponse? {
-        // Validate input parameters
-        if (lat !in -90.0..90.0) {
-            Log.e("WeatherService", "Invalid latitude: $lat")
-            throw IllegalArgumentException("Latitude must be between -90 and 90")
-        }
-        if (lon !in -180.0..180.0) {
-            Log.e("WeatherService", "Invalid longitude: $lon")
-            throw IllegalArgumentException("Longitude must be between -180 and 180")
-        }
+        require(lat in -90.0..90.0) { "Latitude must be between -90 and 90" }
+        require(lon in -180.0..180.0) { "Longitude must be between -180 and 180" }
 
         return try {
             val response = api.getWeatherData(
@@ -61,18 +59,14 @@ object WeatherService {
             Log.v("WeatherService", "Response body: $response")
 
             response
-
         } catch (e: SocketTimeoutException) {
-            Log.e("WeatherService", "Request timeout: ${e.message}", e)
+            Log.e("WeatherService", "Request timeout", e)
             throw Exception("Request timeout. Please check your connection and try again.")
-        } catch (e: SocketException) {
-            Log.e("WeatherService", "Network error: ${e.message}", e)
-            throw Exception("Network error. Please check your internet connection.")
         } catch (e: IOException) {
-            Log.e("WeatherService", "IO error: ${e.message}", e)
-            throw Exception("Connection error: ${e.message}")
+            Log.e("WeatherService", "Network error", e)
+            throw Exception("Network error. Please check your internet connection.")
         } catch (e: Exception) {
-            Log.e("WeatherService", "Unexpected error fetching weather data: ${e.message}", e)
+            Log.e("WeatherService", "Unexpected error fetching weather data", e)
             throw Exception("Unexpected error: ${e.message}")
         }
     }
