@@ -1,4 +1,4 @@
-package com.example.skypulse.ui.renders
+package com.example.skypulse.ui.screens.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,18 +18,17 @@ import com.example.skypulse.components.weathers.CurrentWeatherCard
 import com.example.skypulse.components.weathers.DailyForecastCard
 import com.example.skypulse.components.weathers.HourlyForecastRow
 import com.example.skypulse.components.weathers.WeatherDetailsGrid
-import com.example.skypulse.models.DailyForecast
-import com.example.skypulse.models.HourlyForecast
-import com.example.skypulse.types.WeatherApiResponse
+import com.example.skypulse.mocks.MockData
+import com.example.skypulse.ui.screens.states.HomeScreenState
 
 @Composable
-fun RenderWeatherData(
-    dailyForecasts: List<DailyForecast>,
-    hourlyForecasts: List<HourlyForecast>,
-    weatherData: WeatherApiResponse,
-    location: String,
+fun HomeSuccessView(
+    state: HomeScreenState.Success,
     paddingValues: PaddingValues
 ) {
+    val hourlyForecasts = MockData.getHourlyForecasts()
+    val dailyForecasts = MockData.getDailyForecasts()
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -37,49 +36,30 @@ fun RenderWeatherData(
             .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Current Weather Card
         item {
             CurrentWeatherCard(
-                weatherData = weatherData,
-                location = location,
-                onClick = { /* Navigate to details */ }
+                state.weatherData,
+                state.locationInfo,
             )
         }
 
-        // Weather Details Grid
         item {
-            WeatherDetailsGrid(weatherData = weatherData)
+            WeatherDetailsGrid(state.weatherData)
         }
 
-        // Hourly Forecast Section
         item {
-            SectionHeader(title = "Hourly Forecast")
-            HourlyForecastRow(
-                forecasts = hourlyForecasts,
-                onItemClick = { forecast ->
-                    // Handle hourly forecast click
-                    println("Clicked on ${forecast.time}")
-                }
-            )
+            SectionHeader("Hourly Forecast")
+            HourlyForecastRow(hourlyForecasts)
         }
 
-        // Daily Forecast Section
         item {
-            SectionHeader(title = "7-Day Forecast")
+            SectionHeader("7-Day Forecast")
         }
 
-        // Daily Forecast Items
         items(items = dailyForecasts) { forecast ->
-            DailyForecastCard(
-                forecast = forecast,
-                onClick = {
-                    // Handle daily forecast click
-                    println("Clicked on ${forecast.day}")
-                }
-            )
+            DailyForecastCard(forecast)
         }
 
-        // Bottom spacing
         item {
             Spacer(modifier = Modifier.height(16.dp))
         }
