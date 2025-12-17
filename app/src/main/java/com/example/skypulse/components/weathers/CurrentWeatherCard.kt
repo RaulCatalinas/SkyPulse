@@ -91,7 +91,7 @@ fun CurrentWeatherCard(
 
                 // Temperature
                 CreateText(
-                    text = "${weatherData.main.temperature}°",
+                    text = "${weatherData.main.temperature}°C",
                     fontSize = 64.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White

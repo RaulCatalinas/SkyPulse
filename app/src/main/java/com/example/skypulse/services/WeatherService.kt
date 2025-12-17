@@ -3,6 +3,7 @@ package com.example.skypulse.services
 import android.util.Log
 import com.example.skypulse.BuildConfig
 import com.example.skypulse.constants.BASE_API_URL
+import com.example.skypulse.constants.METRIC_UNIT_OF_MEASUREMENT
 import com.example.skypulse.types.Api
 import com.example.skypulse.types.WeatherApiResponse
 import okhttp3.OkHttpClient
@@ -55,7 +56,8 @@ object WeatherService {
                 .getWeatherData(
                     BuildConfig.WEATHER_API_KEY,
                     lat,
-                    lon
+                    lon,
+                    METRIC_UNIT_OF_MEASUREMENT
                 )
                 .also {
                     Log.d(TAG, "API response received successfully for ($lat, $lon)")
