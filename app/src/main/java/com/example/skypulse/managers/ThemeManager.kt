@@ -43,14 +43,11 @@ object ThemeManager {
 
         // Load saved theme from DataStore
         _themeMode.value = ThemeMode.fromString(themeFromPreferences)
-
-        println("Theme from preferences: ${_themeMode.value.name}")
         isInitialized = true
     }
 
     /**
-     * Set theme mode (in memory only)
-     * Will be persisted when saveTheme() is called
+     * Set theme mode
      */
     fun setThemeMode(mode: ThemeMode) {
         _themeMode.value = mode
