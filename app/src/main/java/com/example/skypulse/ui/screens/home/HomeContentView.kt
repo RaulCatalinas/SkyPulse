@@ -27,12 +27,12 @@ fun HomeContentView(
     val (permissionsGranted, requestPermission) = LocationService.rememberLocationPermission()
     var screenState by remember { mutableStateOf<HomeScreenState>(HomeScreenState.Loading) }
 
-    // Request permits if they haven't been granted
+    // Request permissions if not granted
     LaunchedEffect(Unit) {
         if (!permissionsGranted) requestPermission()
     }
 
-    // Upload data when we've got permission
+    // Load data when we have permissions
     LaunchedEffect(permissionsGranted) {
         if (!permissionsGranted) {
             screenState = HomeScreenState.PermissionDenied
@@ -42,46 +42,56 @@ fun HomeContentView(
         screenState = HomeScreenState.Loading
 
         try {
-            val (lat, lon) = LocationService.getUserLocation(context)
+            val locationResult = LocationService.getUserLocation(context)
 
-            if (lat == null || lon == null) {
-                screenState = HomeScreenState.Error("Couldn't obtain location")
+            if (locationResult.isFailure) {
+                screenState = HomeScreenState.Error("Could not obtain location")
                 return@LaunchedEffect
             }
 
+            val location = locationResult.getOrThrow()
+
             supervisorScope {
                 val weatherDataDeferred = async {
-                    runCatching { WeatherService.getWeatherData(lat, lon) }
+                    runCatching {
+                        WeatherService.getWeatherData(location.latitude, location.longitude)
+                    }
                 }
                 val locationInfoDeferred = async {
-                    runCatching { LocationService.getLocationInfo(context, lat, lon) }
+                    runCatching {
+                        LocationService.getLocationInfo(
+                            context,
+                            location.latitude,
+                            location.longitude
+                        )
+                    }
                 }
 
                 val weatherResult = weatherDataDeferred.await()
-                val locationResult = locationInfoDeferred.await()
+                val locationInfoResult = locationInfoDeferred.await()
 
                 when {
                     weatherResult.isFailure -> {
-                        screenState =
-                            HomeScreenState.Error(
-                                "Weather data failed: ${
-                                    weatherResult.exceptionOrNull()?.message
-                                }"
-                            )
+                        screenState = HomeScreenState.Error(
+                            "Weather data failed: ${
+                                weatherResult.exceptionOrNull()?.message
+                            }"
+                        )
                     }
 
-                    locationResult.isFailure -> {
-                        screenState =
-                            HomeScreenState.Error(
-                                "Location info failed: ${
-                                    locationResult.exceptionOrNull()?.message
-                                }"
-                            )
+                    locationInfoResult.isFailure -> {
+                        screenState = HomeScreenState.Error(
+                            "Location info failed: ${
+                                locationInfoResult
+                                    .exceptionOrNull()
+                                    ?.message
+                            }"
+                        )
                     }
 
                     else -> {
                         val weatherData = weatherResult.getOrThrow()
-                        val locationInfo = locationResult.getOrThrow()
+                        val locationInfo = locationInfoResult.getOrThrow()
 
                         screenState = HomeScreenState.Success(
                             weatherData = weatherData,

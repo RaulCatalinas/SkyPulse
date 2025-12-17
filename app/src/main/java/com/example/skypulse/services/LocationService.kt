@@ -19,106 +19,74 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.example.skypulse.types.LocationInfo
+import com.example.skypulse.types.LocationResult
 import com.google.android.gms.location.LocationServices
-import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object LocationService {
+    private const val TAG = "LocationService"
+
     @Composable
     fun rememberLocationPermission(): Pair<Boolean, () -> Unit> {
         val context = LocalContext.current
-        var locationPermissionGranted by remember { mutableStateOf(false) }
-        var internetPermissionGranted by remember { mutableStateOf(false) }
+        var permissionGranted by remember { mutableStateOf(false) }
 
-        // Launcher for multiple permissions
         val permissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissionsMap ->
-            locationPermissionGranted =
-                permissionsMap[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
-            internetPermissionGranted =
-                permissionsMap[Manifest.permission.INTERNET] ?: false
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            permissionGranted = isGranted
         }
 
         LaunchedEffect(Unit) {
-            locationPermissionGranted = ContextCompat.checkSelfPermission(
+            permissionGranted = ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-
-            internetPermissionGranted = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.INTERNET
             ) == PackageManager.PERMISSION_GRANTED
         }
 
         val requestPermission = {
-            permissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.INTERNET
-                )
-            )
+            permissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
 
-        // Fine location is optional - we only require coarse location and internet
-        val allPermissionsGranted =
-            locationPermissionGranted && internetPermissionGranted
-
-        return Pair(allPermissionsGranted, requestPermission)
+        return Pair(permissionGranted, requestPermission)
     }
 
     /**
      * Get current location
-     * Throws SecurityException if permission not granted
-     * Throws IllegalStateException if service not initialized
-     *
-     * @return LocationResult with latitude and longitude
+     * @return Result with LocationResult or error
      */
-    suspend fun getUserLocation(context: Context): Pair<Double?, Double?> {
-        val fusedLocationClient =
-            LocationServices.getFusedLocationProviderClient(context)
+    suspend fun getUserLocation(context: Context): Result<LocationResult> {
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
         return suspendCoroutine { continuation ->
             try {
-                fusedLocationClient.lastLocation
+                fusedLocationClient
+                    .lastLocation
                     .addOnSuccessListener { location: Location? ->
-                        continuation.resume(
-                            Pair(
-                                location?.latitude,
-                                location?.longitude
+                        if (location != null) {
+                            continuation.resume(
+                                Result.success(
+                                    LocationResult(
+                                        latitude = location.latitude,
+                                        longitude = location.longitude
+                                    )
+                                )
                             )
-                        )
+                        } else {
+                            Log.e(TAG, "Location is null")
+                            continuation.resume(
+                                Result.failure(Exception("Location not available"))
+                            )
+                        }
                     }
                     .addOnFailureListener { exception ->
-                        Log.e(
-                            "LocationService",
-                            exception.message ?: "Unknown error",
-                            exception
-                        )
-
-                        continuation.resume(
-                            Pair(
-                                null,
-                                null
-                            )
-                        )
+                        Log.e(TAG, "Failed to get location", exception)
+                        continuation.resume(Result.failure(exception))
                     }
             } catch (e: SecurityException) {
-                Log.e(
-                    "LocationService",
-                    "Security exception: ${e.message}",
-                    e
-                )
-
-                continuation.resume(
-                    Pair(
-                        null,
-                        null
-                    )
-                )
+                Log.e(TAG, "Security exception", e)
+                continuation.resume(Result.failure(e))
             }
         }
     }
@@ -140,56 +108,31 @@ object LocationService {
         return suspendCoroutine { continuation ->
             try {
                 val geocoder = Geocoder(context)
-                var addresses: List<Address>?
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    geocoder.getFromLocation(latitude, longitude, 1) { addrs ->
-                        addresses = addrs
-                        // Now resume the outer continuation
-                        handleAddresses(addresses, continuation)
+                    geocoder.getFromLocation(latitude, longitude, 1) { addresses ->
+                        continuation.resume(parseAddress(addresses))
                     }
                 } else {
                     @Suppress("DEPRECATION")
-                    addresses = geocoder.getFromLocation(latitude, longitude, 1)
-
-                    handleAddresses(addresses, continuation)
+                    val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+                    continuation.resume(parseAddress(addresses))
                 }
             } catch (e: Exception) {
-                Log.e("LocationService", "Error: ${e.message}", e)
-                continuation.resume(
-                    LocationInfo(
-                        city = "Unknown",
-                        country = "Unknown"
-                    )
-                )
+                Log.e(TAG, "Geocoding error", e)
+                continuation.resume(LocationInfo.UNKNOWN)
             }
         }
     }
 
-    private fun handleAddresses(
-        addresses: List<Address>?,
-        continuation: Continuation<LocationInfo>
-    ) {
-        if (addresses.isNullOrEmpty()) {
-            continuation.resume(
-                LocationInfo(
-                    city = "Unknown",
-                    country = "Unknown"
-                )
-            )
-        } else {
-            val address = addresses[0]
-            val city = address.locality ?: address.adminArea
-            val country = address.countryName
+    private fun parseAddress(addresses: List<Address>?): LocationInfo {
+        val address = addresses?.firstOrNull() ?: return LocationInfo.UNKNOWN
 
-            Log.d("LocationService", "Geocoded: City=$city, Country=$country")
+        val city = address.locality ?: address.adminArea ?: "Unknown"
+        val country = address.countryName ?: "Unknown"
 
-            continuation.resume(
-                LocationInfo(
-                    city = city,
-                    country = country
-                )
-            )
-        }
+        Log.d(TAG, "Geocoded: City=$city, Country=$country")
+
+        return LocationInfo(city = city, country = country)
     }
 }
