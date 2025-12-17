@@ -77,7 +77,6 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.play.services.location)
-    implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     testImplementation(libs.junit)

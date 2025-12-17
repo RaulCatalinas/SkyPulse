@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
+import com.example.skypulse.managers.PreferencesManager
 import com.example.skypulse.managers.ThemeManager
 import com.example.skypulse.ui.screens.HomeScreen
 import com.example.skypulse.ui.theme.SkyPulseTheme
@@ -17,6 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         lifecycleScope.launch {
+            PreferencesManager.initialize(this@MainActivity)
             ThemeManager.initialize(applicationContext)
         }
         setContent {
@@ -30,13 +32,5 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
 
         ThemeManager.cleanup()
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        lifecycleScope.launch {
-            ThemeManager.saveTheme(applicationContext)
-        }
     }
 }

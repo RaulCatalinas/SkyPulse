@@ -6,15 +6,8 @@ import androidx.compose.material.icons.filled.AutoMode
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.example.skypulse.enums.ThemeMode
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import java.lang.ref.WeakReference
 
 /**
@@ -24,8 +17,7 @@ import java.lang.ref.WeakReference
  */
 object ThemeManager {
     // Extension property for DataStore
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-    private val THEME_KEY = stringPreferencesKey("theme_mode")
+    private const val THEME_KEY = "theme_mode"
 
     // In-memory theme state
     private val _themeMode = MutableStateFlow(ThemeMode.SYSTEM)
@@ -41,20 +33,18 @@ object ThemeManager {
      *
      * IMPORTANT: Pass applicationContext, NOT activity context
      */
-    suspend fun initialize(appContext: Context) {
+    fun initialize(appContext: Context) {
         if (isInitialized) return
 
         // Store weak reference to application context (safe from memory leaks)
         contextRef = WeakReference(appContext.applicationContext)
 
-        // Load saved theme from DataStore
-        val savedTheme = appContext.applicationContext.dataStore.data
-            .map { preferences ->
-                ThemeMode.fromString(preferences[THEME_KEY])
-            }
-            .first()
+        val themeFromPreferences = PreferencesManager.getStringPreference(THEME_KEY)
 
-        _themeMode.value = savedTheme
+        // Load saved theme from DataStore
+        _themeMode.value = ThemeMode.fromString(themeFromPreferences)
+
+        println("Theme from preferences: ${_themeMode.value.name}")
         isInitialized = true
     }
 
@@ -64,19 +54,7 @@ object ThemeManager {
      */
     fun setThemeMode(mode: ThemeMode) {
         _themeMode.value = mode
-    }
-
-    /**
-     * Save current theme to disk
-     * Call this from Activity.onStop() or onDestroy()
-     * Pass the context as parameter to avoid storing it
-     */
-    suspend fun saveTheme(context: Context) {
-        if (!isInitialized) return
-
-        context.applicationContext.dataStore.edit { preferences ->
-            preferences[THEME_KEY] = _themeMode.value.name
-        }
+        PreferencesManager.setStringPreference(THEME_KEY, _themeMode.value.name.lowercase())
     }
 
     /**
