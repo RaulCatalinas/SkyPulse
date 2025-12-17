@@ -44,10 +44,7 @@ data class WeatherApiResponse(
     val cityName: String,
 
     @SerializedName("cod")
-    val statusCode: Int,
-
-    @SerializedName("icon")
-    val icon: String
+    val statusCode: Int
 )
 
 data class CoordinatesDto(

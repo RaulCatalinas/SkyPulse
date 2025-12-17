@@ -83,7 +83,7 @@ fun CurrentWeatherCard(
 
                 // Weather Icon (mock)
                 CreateText(
-                    text = weatherData.icon,
+                    text = weatherData.weather[0].icon,
                     fontSize = 72.sp
                 )
 
