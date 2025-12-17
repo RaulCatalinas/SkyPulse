@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.PopupProperties
 
 /**
  * Composable function to remember dropdown state
@@ -29,9 +30,7 @@ class DropdownState(initialExpanded: Boolean = false) {
     /**
      * Close the dropdown
      */
-    fun closeIfNecessary() {
-        if (expanded) return
-
+    fun close() {
         expanded = false
     }
 
@@ -59,7 +58,8 @@ fun CreateDropdown(
 ) {
     DropdownMenu(
         expanded = state.expanded,
-        onDismissRequest = { },
+        onDismissRequest = { state.close() },
+        properties = PopupProperties(dismissOnClickOutside = true),
         modifier = modifier,
         content = content
     )
