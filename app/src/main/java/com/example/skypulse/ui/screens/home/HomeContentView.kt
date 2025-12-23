@@ -27,7 +27,7 @@ fun HomeContentView(
     val state by viewModel.state.collectAsState()
     val (
         permissionsGranted,
-        _
+        requestPermission
     ) = LocationService.rememberLocationPermission()
 
     LaunchedEffect(Unit) {
