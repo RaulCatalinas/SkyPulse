@@ -16,7 +16,6 @@ import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 object WeatherService {
-    private const val TAG = "WeatherService"
     private const val API_KEY = BuildConfig.WEATHER_API_KEY
 
     private val loggingInterceptor =
@@ -88,7 +87,7 @@ object WeatherService {
         lon: Double
     ): Result<WeatherResult> {
         return runCatching {
-            getWeatherMap[requestType]
+            val request = getWeatherMap[requestType]
                 ?: error("Invalid request type: $requestType")
 
             request(lat, lon)
