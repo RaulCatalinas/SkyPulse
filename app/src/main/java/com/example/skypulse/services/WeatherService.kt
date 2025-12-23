@@ -1,10 +1,11 @@
 package com.example.skypulse.services
 
-import android.util.Log
 import com.example.skypulse.BuildConfig
 import com.example.skypulse.constants.BASE_API_URL
 import com.example.skypulse.constants.METRIC_UNIT_OF_MEASUREMENT
 import com.example.skypulse.types.Api
+import com.example.skypulse.types.ApiRequest
+import com.example.skypulse.types.ForecastApiResponse
 import com.example.skypulse.types.WeatherApiResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit
 
 object WeatherService {
     private const val TAG = "WeatherService"
+    private const val API_KEY = BuildConfig.WEATHER_API_KEY
 
     private val loggingInterceptor =
         HttpLoggingInterceptor()
@@ -47,31 +49,85 @@ object WeatherService {
             .build()
             .create(Api::class.java)
 
-    suspend fun getWeatherData(lat: Double, lon: Double): WeatherApiResponse {
-        require(lat in -90.0..90.0) { "Latitude must be between -90 and 90" }
-        require(lon in -180.0..180.0) { "Longitude must be between -180 and 180" }
-
-        return try {
-            api
-                .getWeatherData(
-                    BuildConfig.WEATHER_API_KEY,
-                    lat,
-                    lon,
-                    METRIC_UNIT_OF_MEASUREMENT
+    private val getWeatherMap: Map<ApiRequest, suspend (Double, Double) -> WeatherResult> =
+        mapOf(
+            ApiRequest.GET_WEATHER to { lat, lon ->
+                WeatherResult.Weather(
+                    api
+                        .getWeatherData(
+                            API_KEY,
+                            lat,
+                            lon,
+                            METRIC_UNIT_OF_MEASUREMENT
+                        )
                 )
-                .also {
-                    Log.d(TAG, "API response received successfully for ($lat, $lon)")
-                    Log.v(TAG, "Response: $it")
-                }
-        } catch (e: SocketTimeoutException) {
-            Log.e(TAG, "Request timeout for ($lat, $lon)", e)
-            throw Exception("Request timeout. Please check your connection and try again.")
-        } catch (e: IOException) {
-            Log.e(TAG, "Network error for ($lat, $lon)", e)
-            throw Exception("Network error. Please check your internet connection.")
-        } catch (e: Exception) {
-            Log.e(TAG, "Unexpected error fetching weather data for ($lat, $lon)", e)
-            throw Exception("Unexpected error: ${e.message}")
+            },
+            ApiRequest.GET_FORECAST to { lat, lon ->
+                WeatherResult.Forecast(
+                    api
+                        .getForecastData(
+                            API_KEY,
+                            lat,
+                            lon,
+                            METRIC_UNIT_OF_MEASUREMENT
+                        )
+                )
+            }
+        )
+
+    suspend fun getWeatherInfo(
+        requestType: ApiRequest,
+        lat: Double,
+        lon: Double
+    ): Result<WeatherResult> = executeRequest(requestType, lat, lon)
+
+
+    private suspend fun executeRequest(
+        requestType: ApiRequest,
+        lat: Double,
+        lon: Double
+    ): Result<WeatherResult> {
+        return runCatching {
+            getWeatherMap[requestType]
+                ?: error("Invalid request type: $requestType")
+
+            request(lat, lon)
         }
+            .mapError()
     }
+
+
+    private fun <T> Result<T>.mapError(): Result<T> {
+        return fold(
+            onSuccess = { Result.success(it) },
+            onFailure = {
+                Result.failure(
+                    when (it) {
+                        is SocketTimeoutException ->
+                            WeatherException(WeatherError.Timeout)
+
+                        is IOException ->
+                            WeatherException(WeatherError.Network)
+
+                        else ->
+                            WeatherException(WeatherError.Unknown(it))
+                    }
+                )
+            }
+        )
+    }
+
+
+    sealed class WeatherResult {
+        data class Weather(val data: WeatherApiResponse) : WeatherResult()
+        data class Forecast(val data: ForecastApiResponse) : WeatherResult()
+    }
+
+    sealed class WeatherError {
+        object Timeout : WeatherError()
+        object Network : WeatherError()
+        data class Unknown(val cause: Throwable) : WeatherError()
+    }
+
+    class WeatherException(val error: WeatherError) : Exception()
 }

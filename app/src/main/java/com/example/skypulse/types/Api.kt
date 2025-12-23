@@ -12,4 +12,12 @@ interface Api {
         @Query("lon") lon: Double,
         @Query("units") units: String
     ): WeatherApiResponse
+
+    @GET("forecast")
+    suspend fun getForecastData(
+        @Query("appid") appId: String,
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("units") units: String
+    ): ForecastApiResponse
 }
