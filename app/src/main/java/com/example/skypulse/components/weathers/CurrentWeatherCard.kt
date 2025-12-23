@@ -21,9 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.skypulse.R
 import com.example.skypulse.components.common.CreateIcon
 import com.example.skypulse.components.common.CreateText
 import com.example.skypulse.types.WeatherApiResponse
@@ -93,11 +95,13 @@ fun CurrentWeatherCard(
 
                 // Temperature
                 CreateText(
-                    text = "${weatherData.main.temperature}°C",
+                    text = "${weatherData.main.temperature} °C",
                     fontSize = 64.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Description
                 CreateText(
@@ -110,7 +114,7 @@ fun CurrentWeatherCard(
 
                 // Feels like
                 CreateText(
-                    text = "Feels like ${weatherData.main.feelsLike}°C",
+                    text = "${stringResource(R.string.feels_like)}: ${weatherData.main.feelsLike} °C",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.8f)
                 )
