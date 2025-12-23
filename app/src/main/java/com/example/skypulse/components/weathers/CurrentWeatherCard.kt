@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.example.skypulse.components.common.CreateIcon
 import com.example.skypulse.components.common.CreateText
 import com.example.skypulse.types.WeatherApiResponse
+import com.example.skypulse.utils.toWeatherIcon
 
 /**
  * Main weather card showing current conditions
@@ -81,10 +83,10 @@ fun CurrentWeatherCard(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Weather Icon (mock)
-                CreateText(
-                    text = weatherData.weather[0].icon,
-                    fontSize = 72.sp
+                CreateIcon(
+                    icon = weatherData.weather[0].icon.toWeatherIcon(),
+                    iconDescription = "Weather Icon",
+                    modifier = Modifier.size(96.dp)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -108,7 +110,7 @@ fun CurrentWeatherCard(
 
                 // Feels like
                 CreateText(
-                    text = "Feels like ${weatherData.main.feelsLike}°",
+                    text = "Feels like ${weatherData.main.feelsLike}°C",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.8f)
                 )
