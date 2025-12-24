@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkyPulse</string>
+    <string name="error_unknown">Algo salió mal. Inténtalo de nuevo.</string>
+    <string name="error_timeout">La solicitud tardó demasiado. Inténtalo de nuevo.</string>
+    <string name="error_network">No hay conexión a Internet. Comprueba tu red e intenta de nuevo.</string>
+    <string name="today">Hoy</string>
+    <string name="tomorrow">Mañana</string>
+    <string name="yesterday">Ayer</string>
+    <string name="date_time_format">%1$s a las %2$s</string>
+    <string name="feels_like">Se siente como</string>
+</resources>

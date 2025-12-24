@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,7 +26,7 @@ fun HomeSuccessView(
     paddingValues: PaddingValues
 ) {
     val hourlyForecasts = MockData.getHourlyForecasts()
-    val dailyForecasts = MockData.getDailyForecasts()
+    MockData.getDailyForecasts()
 
     LazyColumn(
         modifier = Modifier
@@ -56,8 +55,8 @@ fun HomeSuccessView(
             SectionHeader("7-Day Forecast")
         }
 
-        items(items = dailyForecasts) { forecast ->
-            DailyForecastCard(forecast)
+        item {
+            DailyForecastCard(state.forecastData)
         }
 
         item {

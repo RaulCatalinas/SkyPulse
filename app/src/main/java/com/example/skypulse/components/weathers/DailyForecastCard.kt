@@ -1,32 +1,36 @@
 package com.example.skypulse.components.weathers
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.WbCloudy
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.skypulse.R
 import com.example.skypulse.components.common.CreateText
-import com.example.skypulse.models.DailyForecast
-import com.example.skypulse.utils.toWeatherIcon
+import com.example.skypulse.enums.WeatherIconSize
+import com.example.skypulse.types.ForecastApiResponse
+import com.example.skypulse.utils.formatWeatherDateTime
 
 @Composable
 fun DailyForecastCard(
-    forecast: DailyForecast,
+    forecast: ForecastApiResponse,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -36,44 +40,49 @@ fun DailyForecastCard(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Row(
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CreateText(
-                text = forecast.day,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
-            )
+            items(forecast.list) { forecastItem ->
+                for (forecastItemWeather in forecastItem.weather) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                    ) {
 
-            // CAMBIADO: Usa Icon en lugar de Text con emoji
-            Icon(
-                imageVector = forecast.icon?.toWeatherIcon()
-                    ?: Icons.Filled.WbCloudy,
-                contentDescription = forecast.description,
-                modifier = Modifier
-                    .weight(0.5f)
-                    .size(24.dp)
-            )
+                        CreateText(
+                            text = forecastItem.dt.formatWeatherDateTime(context),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
+                        )
 
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.End
-            ) {
-                CreateText(
-                    text = "${forecast.maxTemp}°",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
-                CreateText(
-                    text = " / ${forecast.minTemp}°",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 16.sp
-                )
+                        WeatherIcon(
+                            iconCode = forecastItemWeather.icon,
+                            size = WeatherIconSize.MEDIUM,
+                        )
+
+                        CreateText(
+                            text = forecastItemWeather.description,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+
+                        CreateText(
+                            text = "${forecastItem.main.tempMax} °C / ${forecastItem.main.tempMin} °C",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+
+                        CreateText(
+                            text = "${stringResource(R.string.feels_like)}: ${forecastItem.main.feelsLike} °C",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
         }
     }

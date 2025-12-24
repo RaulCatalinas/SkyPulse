@@ -35,27 +35,21 @@ class HomeViewModel : ViewModel() {
 
             supervisorScope {
                 val weatherDeferred = async {
-                    runCatching {
-                        WeatherService
-                            .getWeatherInfo(
-                                ApiRequest.GET_WEATHER,
-                                location.latitude,
-                                location.longitude
-                            )
-                            .getOrThrow()
-                    }
+                    WeatherService
+                        .getWeatherInfo(
+                            ApiRequest.GET_WEATHER,
+                            location.latitude,
+                            location.longitude
+                        )
                 }
 
                 val forecastDeferred = async {
-                    runCatching {
-                        WeatherService
-                            .getWeatherInfo(
-                                ApiRequest.GET_FORECAST,
-                                location.latitude,
-                                location.longitude
-                            )
-                            .getOrThrow()
-                    }
+                    WeatherService
+                        .getWeatherInfo(
+                            ApiRequest.GET_FORECAST,
+                            location.latitude,
+                            location.longitude
+                        )
                 }
 
                 val locationInfoDeferred = async {

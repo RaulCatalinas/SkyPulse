@@ -10,7 +10,8 @@ interface Api {
         @Query("appid") appId: String,
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
-        @Query("units") units: String
+        @Query("units") units: String,
+        @Query("lang") lang: String
     ): WeatherApiResponse
 
     @GET("forecast")
@@ -18,6 +19,7 @@ interface Api {
         @Query("appid") appId: String,
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
-        @Query("units") units: String
+        @Query("units") units: String,
+        @Query("lang") lang: String
     ): ForecastApiResponse
 }

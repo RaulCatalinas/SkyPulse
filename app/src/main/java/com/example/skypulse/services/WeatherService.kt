@@ -3,6 +3,7 @@ package com.example.skypulse.services
 import com.example.skypulse.BuildConfig
 import com.example.skypulse.constants.BASE_API_URL
 import com.example.skypulse.constants.METRIC_UNIT_OF_MEASUREMENT
+import com.example.skypulse.constants.acceptedLanguagesCode
 import com.example.skypulse.types.Api
 import com.example.skypulse.types.ApiRequest
 import com.example.skypulse.types.ForecastApiResponse
@@ -13,6 +14,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.net.SocketTimeoutException
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 object WeatherService {
@@ -57,7 +59,8 @@ object WeatherService {
                             API_KEY,
                             lat,
                             lon,
-                            METRIC_UNIT_OF_MEASUREMENT
+                            METRIC_UNIT_OF_MEASUREMENT,
+                            getLanguageCode()
                         )
                 )
             },
@@ -68,7 +71,8 @@ object WeatherService {
                             API_KEY,
                             lat,
                             lon,
-                            METRIC_UNIT_OF_MEASUREMENT
+                            METRIC_UNIT_OF_MEASUREMENT,
+                            getLanguageCode()
                         )
                 )
             }
@@ -79,7 +83,6 @@ object WeatherService {
         lat: Double,
         lon: Double
     ): Result<WeatherResult> = executeRequest(requestType, lat, lon)
-
 
     private suspend fun executeRequest(
         requestType: ApiRequest,
@@ -102,18 +105,19 @@ object WeatherService {
             onFailure = {
                 Result.failure(
                     when (it) {
-                        is SocketTimeoutException ->
-                            WeatherException(WeatherError.Timeout)
-
-                        is IOException ->
-                            WeatherException(WeatherError.Network)
-
-                        else ->
-                            WeatherException(WeatherError.Unknown(it))
+                        is SocketTimeoutException -> WeatherException(WeatherError.Timeout)
+                        is IOException -> WeatherException(WeatherError.Network)
+                        else -> WeatherException(WeatherError.Unknown(it))
                     }
                 )
             }
         )
+    }
+
+    private fun getLanguageCode(): String {
+        val index = acceptedLanguagesCode.indexOf(Locale.getDefault().language)
+
+        return acceptedLanguagesCode[if (index != -1) index else 0]
     }
 
 
