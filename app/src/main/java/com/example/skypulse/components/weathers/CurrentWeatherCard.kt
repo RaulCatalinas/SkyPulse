@@ -62,13 +62,9 @@ fun CurrentWeatherCard(
                 .padding(24.dp),
             contentAlignment = Alignment.Center
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 // Location
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     CreateIcon(
                         Icons.Default.LocationOn,
                         iconDescription = "Location",
@@ -82,14 +78,10 @@ fun CurrentWeatherCard(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
                 WeatherIcon(
                     iconCode = weatherData.weather[0].icon,
                     size = WeatherIconSize.LARGE,
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 // Temperature
                 CreateText(
