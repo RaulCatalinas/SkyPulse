@@ -26,7 +26,6 @@ fun HomeSuccessView(
     paddingValues: PaddingValues
 ) {
     val hourlyForecasts = MockData.getHourlyForecasts()
-    MockData.getDailyForecasts()
 
     LazyColumn(
         modifier = Modifier

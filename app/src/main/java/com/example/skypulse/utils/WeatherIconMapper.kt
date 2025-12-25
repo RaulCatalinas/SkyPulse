@@ -34,7 +34,7 @@ object WeatherIconMapper {
             "cloudy", "overcast", "mostly cloudy" -> Icons.Filled.Cloud
             "few clouds" -> Icons.Filled.CloudQueue
 
-            // Rain
+            // DailyForecastItemRain
             "light rain", "light shower", "rain", "rainy", "moderate rain" -> Icons.Filled.WaterDrop
             "heavy rain", "shower rain", "heavy shower" -> Icons.Filled.Grain
             "drizzle", "mist rain" -> Icons.Filled.Opacity
@@ -72,7 +72,7 @@ object WeatherIconMapper {
             // Drizzle (300-321)
             in 300..321 -> Icons.Filled.Opacity
 
-            // Rain (500-531)
+            // DailyForecastItemRain (500-531)
             500, 520 -> Icons.Filled.Grain // Light rain
             in 501..531 -> Icons.Filled.Water // Heavy rain
 

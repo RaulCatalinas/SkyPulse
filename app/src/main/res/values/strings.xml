@@ -8,4 +8,6 @@
     <string name="yesterday">Yesterday</string>
     <string name="date_time_format">%1$s at %2$s</string>
     <string name="feels_like">Feels like</string>
+    <string name="humidity">Humidity</string>
+    <string name="wind_speed">Wind Speed</string>
 </resources>

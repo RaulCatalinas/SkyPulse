@@ -27,15 +27,15 @@ import androidx.compose.ui.unit.sp
 import com.example.skypulse.R
 import com.example.skypulse.components.common.CreateIcon
 import com.example.skypulse.components.common.CreateText
+import com.example.skypulse.domain.models.CurrentWeather
 import com.example.skypulse.enums.WeatherIconSize
-import com.example.skypulse.types.WeatherApiResponse
 
 /**
  * Main weather card showing current conditions
  */
 @Composable
 fun CurrentWeatherCard(
-    weatherData: WeatherApiResponse,
+    weatherData: CurrentWeather,
     location: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}

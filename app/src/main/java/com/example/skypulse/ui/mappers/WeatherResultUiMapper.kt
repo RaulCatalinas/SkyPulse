@@ -8,10 +8,11 @@ sealed class WeatherUiError {
     object Unknown : WeatherUiError()
 }
 
-fun Result<WeatherService.WeatherResult>.toUiError(): WeatherUiError {
+fun <T> Result<T>.toUiError(): WeatherUiError {
     return when ((exceptionOrNull() as? WeatherService.WeatherException)?.error) {
         WeatherService.WeatherError.Timeout -> WeatherUiError.Timeout
         WeatherService.WeatherError.Network -> WeatherUiError.Network
         else -> WeatherUiError.Unknown
     }
 }
+

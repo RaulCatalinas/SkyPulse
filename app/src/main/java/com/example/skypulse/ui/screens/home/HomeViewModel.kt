@@ -3,9 +3,8 @@ package com.example.skypulse.ui.screens.home
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.skypulse.repositories.WeatherRepository
 import com.example.skypulse.services.LocationService
-import com.example.skypulse.services.WeatherService
-import com.example.skypulse.types.ApiRequest
 import com.example.skypulse.ui.mappers.WeatherUiError
 import com.example.skypulse.ui.mappers.toUiError
 import com.example.skypulse.ui.screens.states.HomeScreenState
@@ -16,16 +15,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
 class HomeViewModel : ViewModel() {
-    private val _state =
-        MutableStateFlow<HomeScreenState>(HomeScreenState.Loading)
-
+    private val _state = MutableStateFlow<HomeScreenState>(HomeScreenState.Loading)
     val state: StateFlow<HomeScreenState> = _state
 
     fun loadHomeData(context: Context) {
         viewModelScope.launch {
             _state.value = HomeScreenState.Loading
-            val locationResult = LocationService.getUserLocation(context)
 
+            // Get user location
+            val locationResult = LocationService.getUserLocation(context)
             if (locationResult.isFailure) {
                 _state.value = HomeScreenState.Error(WeatherUiError.Unknown)
                 return@launch
@@ -33,23 +31,20 @@ class HomeViewModel : ViewModel() {
 
             val location = locationResult.getOrNull()!!
 
+            // Fetch all data in parallel
             supervisorScope {
                 val weatherDeferred = async {
-                    WeatherService
-                        .getWeatherInfo(
-                            ApiRequest.GET_WEATHER,
-                            location.latitude,
-                            location.longitude
-                        )
+                    WeatherRepository.getCurrentWeather(  // ← Using Repository
+                        location.latitude,
+                        location.longitude
+                    )
                 }
 
                 val forecastDeferred = async {
-                    WeatherService
-                        .getWeatherInfo(
-                            ApiRequest.GET_FORECAST,
-                            location.latitude,
-                            location.longitude
-                        )
+                    WeatherRepository.getForecast(  // ← Using Repository
+                        location.latitude,
+                        location.longitude
+                    )
                 }
 
                 val locationInfoDeferred = async {
@@ -62,10 +57,12 @@ class HomeViewModel : ViewModel() {
                     }
                 }
 
+                // Await all results
                 val weatherResult = weatherDeferred.await()
                 val forecastResult = forecastDeferred.await()
                 val locationInfoResult = locationInfoDeferred.await()
 
+                // Handle results
                 when {
                     weatherResult.isFailure -> {
                         _state.value = HomeScreenState.Error(
@@ -84,23 +81,14 @@ class HomeViewModel : ViewModel() {
                     }
 
                     else -> {
-                        val weather =
-                            weatherResult
-                                .getOrNull()
-                                    as WeatherService.WeatherResult.Weather
-
-                        val forecast =
-                            forecastResult
-                                .getOrNull()
-                                    as WeatherService.WeatherResult.Forecast
-
+                        val weatherData = weatherResult.getOrThrow()  // ← Already rounded
+                        val forecastData = forecastResult.getOrThrow()  // ← Already rounded
                         val locationInfo = locationInfoResult.getOrThrow()
 
                         _state.value = HomeScreenState.Success(
-                            weatherData = weather.data,
-                            forecastData = forecast.data,
-                            locationInfo =
-                                "${locationInfo.city}, ${locationInfo.country}"
+                            weatherData = weatherData,
+                            forecastData = forecastData,
+                            locationInfo = "${locationInfo.city}, ${locationInfo.country}"
                         )
                     }
                 }

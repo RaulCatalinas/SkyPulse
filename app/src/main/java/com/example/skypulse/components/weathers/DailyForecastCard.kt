@@ -19,13 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skypulse.R
 import com.example.skypulse.components.common.CreateText
+import com.example.skypulse.domain.models.DailyForecastWeather
 import com.example.skypulse.enums.WeatherIconSize
-import com.example.skypulse.types.ForecastApiResponse
 import com.example.skypulse.utils.formatWeatherDateTime
 
 @Composable
 fun DailyForecastCard(
-    forecast: ForecastApiResponse,
+    forecast: DailyForecastWeather,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {

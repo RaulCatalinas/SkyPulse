@@ -1,29 +1,11 @@
 package com.example.skypulse.mocks
 
 import com.example.skypulse.models.City
-import com.example.skypulse.models.DailyForecast
 import com.example.skypulse.models.HourlyForecast
-import com.example.skypulse.models.WeatherData
 
 // Mock data functions
 class MockData {
     companion object {
-        fun getWeatherData(location: String = "Madrid, Spain"): WeatherData {
-            return WeatherData(
-                location = location,
-                temperature = 22,
-                description = "Partly Cloudy",
-                feelsLike = 20,
-                humidity = 65,
-                windSpeed = 12,
-                uvIndex = 5,
-                pressure = 1013,
-                visibility = 10,
-                sunrise = "07:30",
-                sunset = "20:15"
-            )
-        }
-
         fun getHourlyForecasts(): List<HourlyForecast> {
             return listOf(
                 HourlyForecast(
@@ -78,77 +60,9 @@ class MockData {
                 HourlyForecast(
                     time = "21:00",
                     temperature = 17,
-                    icon = "Rain",
+                    icon = "DailyForecastItemRain",
                     description = "Light rain",
                     precipitation = 40
-                )
-            )
-        }
-
-        fun getDailyForecasts(): List<DailyForecast> {
-            return listOf(
-                DailyForecast(
-                    day = "Today",
-                    date = "Nov 19",
-                    maxTemp = 25,
-                    minTemp = 18,
-                    description = "Partly Cloudy",
-                    icon = "Partly Cloudy",
-                    precipitation = 15
-                ),
-                DailyForecast(
-                    day = "Tomorrow",
-                    date = "Nov 20",
-                    maxTemp = 26,
-                    minTemp = 19,
-                    description = "Sunny",
-                    icon = "Sunny",
-                    precipitation = 5
-                ),
-                DailyForecast(
-                    day = "Wednesday",
-                    date = "Nov 21",
-                    maxTemp = 24,
-                    minTemp = 17,
-                    description = "Cloudy",
-                    icon = "Cloudy",
-                    precipitation = 30
-                ),
-                DailyForecast(
-                    day = "Thursday",
-                    date = "Nov 22",
-                    maxTemp = 23,
-                    minTemp = 16,
-                    description = "Rainy",
-                    icon = "Rain",
-                    precipitation = 70
-                ),
-                DailyForecast(
-                    day = "Friday",
-                    date = "Nov 23",
-                    maxTemp = 22,
-                    minTemp = 15,
-                    description = "Partly Cloudy",
-                    icon = "Partly Cloudy",
-                    precipitation = 20
-                ),
-                DailyForecast(
-                    day = "Saturday",
-                    date = "Nov 24",
-                    maxTemp = 24,
-                    minTemp = 17,
-                    description = "Sunny",
-                    icon = "Sunny",
-                    precipitation = 0
-                ),
-                DailyForecast(
-                    day = "Sunday",
-                    date = "Nov 25",
-                    maxTemp = 25,
-                    minTemp = 18,
-                    description = "Clear Sky",
-                    icon = "Clear",
-                    precipitation = 0
                 )
             )
         }
