@@ -22,4 +22,13 @@ interface Api {
         @Query("units") units: String,
         @Query("lang") lang: String
     ): ForecastApiResponse
+
+    @GET("forecast/hourly")
+    suspend fun getHourlyForecastData(
+        @Query("appid") appId: String,
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("units") units: String,
+        @Query("lang") lang: String
+    ): HourlyForecastApiResponse
 }

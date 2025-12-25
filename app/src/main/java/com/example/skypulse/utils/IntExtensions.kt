@@ -21,32 +21,41 @@ import java.time.format.DateTimeFormatter
  * - Spanish: "Hoy a las 14:30", "Mañana a las 09:00", "25 dic a las 18:00"
  */
 fun Int.formatWeatherDateTime(context: Context): String {
-    // Convert Unix timestamp (seconds) to LocalDateTime
-    val dateTime = Instant.ofEpochSecond(this.toLong())
-        .atZone(ZoneId.systemDefault())
-        .toLocalDateTime()
+    // Convert Unix timestamp (milliseconds) → LocalDateTime
+    val dateTime =
+        Instant
+            .ofEpochMilli(this.toLong() * 1_000L)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime()
 
     val date = dateTime.toLocalDate()
     val time = dateTime.toLocalTime()
-
     val locale = context.resources.configuration.locales[0]
 
-    // Determine if it's today, tomorrow or yesterday
     val today = LocalDate.now()
     val dateText = when (date) {
         today -> context.getString(R.string.today)
         today.plusDays(1) -> context.getString(R.string.tomorrow)
         today.minusDays(1) -> context.getString(R.string.yesterday)
         else -> {
-            // Format: "25 Dec" or "25 dic"
-            val dateFormatter = DateTimeFormatter.ofPattern("dd MMM", locale)
-            date.format(dateFormatter)
+            val formatter = DateTimeFormatter.ofPattern("dd MMM", locale)
+            date.format(formatter)
         }
     }
 
-    // Format time according to locale
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm", locale)
     val timeText = time.format(timeFormatter)
 
     return context.getString(R.string.date_time_format, dateText, timeText)
+}
+
+fun Int.formatWeatherTime(context: Context): String {
+    val locale = context.resources.configuration.locales[0]
+    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm", locale)
+
+    return Instant
+        .ofEpochMilli(this.toLong() * 1_000L)
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+        .format(timeFormatter)
 }

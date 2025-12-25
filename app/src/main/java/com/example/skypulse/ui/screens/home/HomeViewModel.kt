@@ -34,14 +34,21 @@ class HomeViewModel : ViewModel() {
             // Fetch all data in parallel
             supervisorScope {
                 val weatherDeferred = async {
-                    WeatherRepository.getCurrentWeather(  // ← Using Repository
+                    WeatherRepository.getCurrentWeather(
                         location.latitude,
                         location.longitude
                     )
                 }
 
                 val forecastDeferred = async {
-                    WeatherRepository.getForecast(  // ← Using Repository
+                    WeatherRepository.getForecast(
+                        location.latitude,
+                        location.longitude
+                    )
+                }
+
+                val hourlyForecastDeferred = async {
+                    WeatherRepository.getHourlyForecast(
                         location.latitude,
                         location.longitude
                     )
@@ -60,6 +67,7 @@ class HomeViewModel : ViewModel() {
                 // Await all results
                 val weatherResult = weatherDeferred.await()
                 val forecastResult = forecastDeferred.await()
+                val hourlyForecastResult = hourlyForecastDeferred.await()
                 val locationInfoResult = locationInfoDeferred.await()
 
                 // Handle results
@@ -76,18 +84,26 @@ class HomeViewModel : ViewModel() {
                         )
                     }
 
+                    hourlyForecastResult.isFailure -> {
+                        _state.value = HomeScreenState.Error(
+                            hourlyForecastResult.toUiError()
+                        )
+                    }
+
                     locationInfoResult.isFailure -> {
                         _state.value = HomeScreenState.Error(WeatherUiError.Unknown)
                     }
 
                     else -> {
-                        val weatherData = weatherResult.getOrThrow()  // ← Already rounded
-                        val forecastData = forecastResult.getOrThrow()  // ← Already rounded
+                        val weatherData = weatherResult.getOrThrow()
+                        val forecastData = forecastResult.getOrThrow()
+                        val hourlyForecastData = hourlyForecastResult.getOrThrow()
                         val locationInfo = locationInfoResult.getOrThrow()
 
                         _state.value = HomeScreenState.Success(
                             weatherData = weatherData,
                             forecastData = forecastData,
+                            hourlyForecastData = hourlyForecastData,
                             locationInfo = "${locationInfo.city}, ${locationInfo.country}"
                         )
                     }

@@ -2,6 +2,7 @@ package com.example.skypulse.ui.screens.states
 
 import com.example.skypulse.domain.models.CurrentWeather
 import com.example.skypulse.domain.models.DailyForecastWeather
+import com.example.skypulse.domain.models.HourlyForecast
 import com.example.skypulse.ui.mappers.WeatherUiError
 
 sealed class HomeScreenState {
@@ -11,6 +12,7 @@ sealed class HomeScreenState {
     data class Success(
         val weatherData: CurrentWeather,
         val forecastData: DailyForecastWeather,
+        val hourlyForecastData: HourlyForecast,
         val locationInfo: String
     ) : HomeScreenState()
 }

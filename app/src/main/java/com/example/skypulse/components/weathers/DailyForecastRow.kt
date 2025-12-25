@@ -24,37 +24,37 @@ import com.example.skypulse.enums.WeatherIconSize
 import com.example.skypulse.utils.formatWeatherDateTime
 
 @Composable
-fun DailyForecastCard(
+fun DailyForecastRow(
     forecast: DailyForecastWeather,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        onClick = onClick,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        LazyRow(
-            modifier = Modifier
+    LazyRow(
+        modifier =
+            Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            items(forecast.list) { forecastItem ->
-                for (forecastItemWeather in forecastItem.weather) {
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        items(forecast.list) { forecastItem ->
+            for (forecastItemWeather in forecastItem.weather) {
+                Card(
+                    modifier =
+                        modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                    onClick = onClick,
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
                     Column(
                         modifier = Modifier.padding(horizontal = 8.dp),
                     ) {
 
                         CreateText(
-                            text = forecastItem.dt.formatWeatherDateTime(context),
+                            text = forecastItem.dt.formatWeatherDateTime(LocalContext.current),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )

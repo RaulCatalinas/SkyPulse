@@ -14,10 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.skypulse.components.sections.SectionHeader
 import com.example.skypulse.components.weathers.CurrentWeatherCard
-import com.example.skypulse.components.weathers.DailyForecastCard
+import com.example.skypulse.components.weathers.DailyForecastRow
 import com.example.skypulse.components.weathers.HourlyForecastRow
 import com.example.skypulse.components.weathers.WeatherDetailsGrid
-import com.example.skypulse.mocks.MockData
 import com.example.skypulse.ui.screens.states.HomeScreenState
 
 @Composable
@@ -25,8 +24,6 @@ fun HomeSuccessView(
     state: HomeScreenState.Success,
     paddingValues: PaddingValues
 ) {
-    val hourlyForecasts = MockData.getHourlyForecasts()
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -47,15 +44,12 @@ fun HomeSuccessView(
 
         item {
             SectionHeader("Hourly Forecast")
-            HourlyForecastRow(hourlyForecasts)
+            HourlyForecastRow(state.hourlyForecastData)
         }
 
         item {
             SectionHeader("7-Day Forecast")
-        }
-
-        item {
-            DailyForecastCard(state.forecastData)
+            DailyForecastRow(state.forecastData)
         }
 
         item {
