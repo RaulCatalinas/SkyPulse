@@ -74,7 +74,7 @@ fun CurrentWeatherCard(
                     CreateText(
                         text = location,
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color.White
+                        color = Color.White,
                     )
                 }
 
@@ -86,9 +86,9 @@ fun CurrentWeatherCard(
                 // Temperature
                 CreateText(
                     text = "${weatherData.main.temperature} °C",
+                    color = Color.White,
                     fontSize = 64.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -97,7 +97,7 @@ fun CurrentWeatherCard(
                 CreateText(
                     text = weatherData.weather[0].description,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White.copy(alpha = 0.9f)
+                    color = Color.White.copy(alpha = 0.9f),
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -106,7 +106,7 @@ fun CurrentWeatherCard(
                 CreateText(
                     text = "${stringResource(R.string.feels_like)}: ${weatherData.main.feelsLike} °C",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.8f)
+                    color = Color.White.copy(alpha = 0.8f),
                 )
             }
         }

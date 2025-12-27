@@ -1,25 +1,14 @@
 package com.example.skypulse.components.weathers
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.skypulse.R
-import com.example.skypulse.components.common.CreateText
 import com.example.skypulse.domain.models.DailyForecastWeather
-import com.example.skypulse.enums.WeatherIconSize
-import com.example.skypulse.utils.formatWeatherDateTime
 
 @Composable
 fun DailyForecastRow(
@@ -27,56 +16,15 @@ fun DailyForecastRow(
     modifier: Modifier = Modifier,
 ) {
     LazyRow(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(forecast.list) { forecastItem ->
-            for (forecastItemWeather in forecastItem.weather) {
-                Card(
-                    modifier =
-                        modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                ) {
-                    Column(
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                    ) {
-
-                        CreateText(
-                            text = forecastItem.dt.formatWeatherDateTime(LocalContext.current),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-
-                        WeatherIcon(
-                            iconCode = forecastItemWeather.icon,
-                            size = WeatherIconSize.MEDIUM,
-                        )
-
-                        CreateText(
-                            text = forecastItemWeather.description,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-
-                        CreateText(
-                            text = "${forecastItem.main.temp} °C",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-
-                        CreateText(
-                            text = "${stringResource(R.string.feels_like)}: ${forecastItem.main.feelsLike} °C",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
+        items(
+            items = forecast.list,
+            key = { it.dt } // Key para mejor performance
+        ) { forecastItem ->
+            DailyForecastItemCard(forecastItem = forecastItem)
         }
     }
 }

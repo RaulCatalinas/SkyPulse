@@ -10,4 +10,5 @@
     <string name="feels_like">Feels like</string>
     <string name="humidity">Humidity</string>
     <string name="wind_speed">Wind Speed</string>
+    <string name="daily_forecast">Daily forecast</string>
 </resources>

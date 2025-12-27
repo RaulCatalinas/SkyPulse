@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 
 @Composable
@@ -17,6 +18,7 @@ fun CreateText(
     color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontWeight: FontWeight? = null,
+    textAlign: TextAlign = TextAlign.Center,
 ) {
     Text(
         text = text,
@@ -24,6 +26,7 @@ fun CreateText(
         color = color,
         fontSize = fontSize,
         fontWeight = fontWeight,
-        modifier = modifier
+        textAlign = textAlign,
+        modifier = modifier,
     )
 }
