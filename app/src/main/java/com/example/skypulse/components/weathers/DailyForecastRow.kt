@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +25,6 @@ import com.example.skypulse.utils.formatWeatherDateTime
 fun DailyForecastRow(
     forecast: DailyForecastWeather,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
 ) {
     LazyRow(
         modifier =
@@ -44,10 +41,6 @@ fun DailyForecastRow(
                         modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 4.dp),
-                    onClick = onClick,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
                 ) {
                     Column(
                         modifier = Modifier.padding(horizontal = 8.dp),
@@ -71,7 +64,7 @@ fun DailyForecastRow(
                         )
 
                         CreateText(
-                            text = "${forecastItem.main.tempMax} °C / ${forecastItem.main.tempMin} °C",
+                            text = "${forecastItem.main.temp} °C",
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )

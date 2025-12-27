@@ -47,13 +47,6 @@ class HomeViewModel : ViewModel() {
                     )
                 }
 
-                val hourlyForecastDeferred = async {
-                    WeatherRepository.getHourlyForecast(
-                        location.latitude,
-                        location.longitude
-                    )
-                }
-
                 val locationInfoDeferred = async {
                     runCatching {
                         LocationService.getLocationInfo(
@@ -67,7 +60,6 @@ class HomeViewModel : ViewModel() {
                 // Await all results
                 val weatherResult = weatherDeferred.await()
                 val forecastResult = forecastDeferred.await()
-                val hourlyForecastResult = hourlyForecastDeferred.await()
                 val locationInfoResult = locationInfoDeferred.await()
 
                 // Handle results
@@ -84,12 +76,6 @@ class HomeViewModel : ViewModel() {
                         )
                     }
 
-                    hourlyForecastResult.isFailure -> {
-                        _state.value = HomeScreenState.Error(
-                            hourlyForecastResult.toUiError()
-                        )
-                    }
-
                     locationInfoResult.isFailure -> {
                         _state.value = HomeScreenState.Error(WeatherUiError.Unknown)
                     }
@@ -97,13 +83,11 @@ class HomeViewModel : ViewModel() {
                     else -> {
                         val weatherData = weatherResult.getOrThrow()
                         val forecastData = forecastResult.getOrThrow()
-                        val hourlyForecastData = hourlyForecastResult.getOrThrow()
                         val locationInfo = locationInfoResult.getOrThrow()
 
                         _state.value = HomeScreenState.Success(
                             weatherData = weatherData,
                             forecastData = forecastData,
-                            hourlyForecastData = hourlyForecastData,
                             locationInfo = "${locationInfo.city}, ${locationInfo.country}"
                         )
                     }

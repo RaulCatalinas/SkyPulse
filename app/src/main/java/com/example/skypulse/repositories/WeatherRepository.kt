@@ -3,7 +3,6 @@ package com.example.skypulse.repositories
 import com.example.skypulse.domain.mappers.toUiModel
 import com.example.skypulse.domain.models.CurrentWeather
 import com.example.skypulse.domain.models.DailyForecastWeather
-import com.example.skypulse.domain.models.HourlyForecast
 import com.example.skypulse.services.WeatherService
 import com.example.skypulse.types.ApiRequest
 
@@ -17,7 +16,6 @@ import com.example.skypulse.types.ApiRequest
  * - Handles data transformation and rounding
  */
 object WeatherRepository {
-
     /**
      * Fetches current weather data for given coordinates.
      *
@@ -55,20 +53,6 @@ object WeatherRepository {
             .mapCatching {
                 when (it) {
                     is WeatherService.WeatherResult.Forecast -> it.data.toUiModel()
-                    else -> error("Unexpected result type")
-                }
-            }
-    }
-
-    suspend fun getHourlyForecast(
-        lat: Double,
-        lon: Double
-    ): Result<HourlyForecast> {
-        return WeatherService
-            .getWeatherInfo(ApiRequest.GET_HOURLY_FORECAST, lat, lon)
-            .mapCatching {
-                when (it) {
-                    is WeatherService.WeatherResult.HourlyForecast -> it.data.toUiModel()
                     else -> error("Unexpected result type")
                 }
             }

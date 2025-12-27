@@ -7,7 +7,6 @@ import com.example.skypulse.constants.acceptedLanguagesCode
 import com.example.skypulse.types.Api
 import com.example.skypulse.types.ApiRequest
 import com.example.skypulse.types.ForecastApiResponse
-import com.example.skypulse.types.HourlyForecastApiResponse
 import com.example.skypulse.types.WeatherApiResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -77,18 +76,6 @@ object WeatherService {
                         )
                 )
             },
-            ApiRequest.GET_HOURLY_FORECAST to { lat, lon ->
-                WeatherResult.HourlyForecast(
-                    api
-                        .getHourlyForecastData(
-                            API_KEY,
-                            lat,
-                            lon,
-                            METRIC_UNIT_OF_MEASUREMENT,
-                            getLanguageCode()
-                        )
-                )
-            }
         )
 
     suspend fun getWeatherInfo(
@@ -137,7 +124,6 @@ object WeatherService {
     sealed class WeatherResult {
         data class Weather(val data: WeatherApiResponse) : WeatherResult()
         data class Forecast(val data: ForecastApiResponse) : WeatherResult()
-        data class HourlyForecast(val data: HourlyForecastApiResponse) : WeatherResult()
     }
 
     sealed class WeatherError {

@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import com.example.skypulse.components.sections.SectionHeader
 import com.example.skypulse.components.weathers.CurrentWeatherCard
 import com.example.skypulse.components.weathers.DailyForecastRow
-import com.example.skypulse.components.weathers.HourlyForecastRow
 import com.example.skypulse.components.weathers.WeatherDetailsGrid
 import com.example.skypulse.ui.screens.states.HomeScreenState
 
@@ -43,12 +42,7 @@ fun HomeSuccessView(
         }
 
         item {
-            SectionHeader("Hourly Forecast")
-            HourlyForecastRow(state.hourlyForecastData)
-        }
-
-        item {
-            SectionHeader("7-Day Forecast")
+            SectionHeader("Daily Forecast")
             DailyForecastRow(state.forecastData)
         }
 
