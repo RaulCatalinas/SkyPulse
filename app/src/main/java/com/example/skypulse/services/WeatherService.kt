@@ -1,77 +1,33 @@
 package com.example.skypulse.services
 
-import com.example.skypulse.BuildConfig
-import com.example.skypulse.constants.BASE_API_URL
-import com.example.skypulse.constants.METRIC_UNIT_OF_MEASUREMENT
 import com.example.skypulse.constants.acceptedLanguagesCode
-import com.example.skypulse.types.Api
+import com.example.skypulse.network.RetrofitClient
 import com.example.skypulse.types.ApiRequest
 import com.example.skypulse.types.ForecastApiResponse
 import com.example.skypulse.types.WeatherApiResponse
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 object WeatherService {
-    private const val API_KEY = BuildConfig.WEATHER_API_KEY
-
-    private val loggingInterceptor =
-        HttpLoggingInterceptor()
-            .apply {
-                level =
-                    if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
-                    else HttpLoggingInterceptor.Level.NONE
-            }
-
-    private val okHttpClient =
-        OkHttpClient
-            .Builder()
-            .apply {
-                addInterceptor(loggingInterceptor)
-                connectTimeout(10, TimeUnit.SECONDS)
-                readTimeout(15, TimeUnit.SECONDS)
-                writeTimeout(10, TimeUnit.SECONDS)
-            }
-            .build()
-
-    private val api =
-        Retrofit
-            .Builder()
-            .apply {
-                baseUrl(BASE_API_URL)
-                client(okHttpClient)
-                addConverterFactory(GsonConverterFactory.create())
-            }
-            .build()
-            .create(Api::class.java)
-
     private val getWeatherMap: Map<ApiRequest, suspend (Double, Double) -> WeatherResult> =
         mapOf(
             ApiRequest.GET_WEATHER to { lat, lon ->
                 WeatherResult.Weather(
-                    api
+                    RetrofitClient.API
                         .getWeatherData(
-                            API_KEY,
                             lat,
                             lon,
-                            METRIC_UNIT_OF_MEASUREMENT,
                             getLanguageCode()
                         )
                 )
             },
             ApiRequest.GET_FORECAST to { lat, lon ->
                 WeatherResult.Forecast(
-                    api
+                    RetrofitClient.API
                         .getForecastData(
-                            API_KEY,
                             lat,
                             lon,
-                            METRIC_UNIT_OF_MEASUREMENT,
                             getLanguageCode()
                         )
                 )
