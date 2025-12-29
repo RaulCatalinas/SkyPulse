@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import com.example.skypulse.managers.PreferencesManager
 import com.example.skypulse.managers.ThemeManager
+import com.example.skypulse.repositories.LocationRepository
 import com.example.skypulse.ui.screens.HomeScreen
 import com.example.skypulse.ui.theme.SkyPulseTheme
 import kotlinx.coroutines.launch
@@ -18,6 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         lifecycleScope.launch {
+            LocationRepository.initialize(this@MainActivity)
             PreferencesManager.initialize(this@MainActivity)
             ThemeManager.initialize(applicationContext)
         }

@@ -6,12 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.skypulse.R
 import com.example.skypulse.components.common.CreateTopBar
-import com.example.skypulse.services.LocationService
+import com.example.skypulse.repositories.LocationRepository
 import com.example.skypulse.ui.mappers.WeatherUiError
 import com.example.skypulse.ui.screens.states.HomeScreenState
 
@@ -23,21 +22,18 @@ fun HomeContentView(
     onFavoritesClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
-    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val (
         permissionsGranted,
         requestPermission
-    ) = LocationService.rememberLocationPermission()
+    ) = LocationRepository.RememberLocationPermission()
 
     LaunchedEffect(Unit) {
         if (!permissionsGranted) requestPermission()
     }
 
     LaunchedEffect(permissionsGranted) {
-        if (permissionsGranted) {
-            viewModel.loadHomeData(context)
-        }
+        if (permissionsGranted) viewModel.loadHomeData()
     }
 
     Scaffold(

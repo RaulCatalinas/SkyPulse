@@ -1,25 +1,11 @@
 package com.example.skypulse.services
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.Build
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
-import com.example.skypulse.types.LocationInfo
-import com.example.skypulse.types.LocationResult
 import com.google.android.gms.location.LocationServices
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -27,66 +13,49 @@ import kotlin.coroutines.suspendCoroutine
 object LocationService {
     private const val TAG = "LocationService"
 
-    @Composable
-    fun rememberLocationPermission(): Pair<Boolean, () -> Unit> {
-        val context = LocalContext.current
-        var permissionGranted by remember { mutableStateOf(false) }
-
-        val permissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
-            permissionGranted = isGranted
-        }
-
-        LaunchedEffect(Unit) {
-            permissionGranted = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        }
-
-        val requestPermission = {
-            permissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-        }
-
-        return Pair(permissionGranted, requestPermission)
-    }
-
     /**
      * Get current location
      * @return Result with LocationResult or error
      */
-    suspend fun getUserLocation(context: Context): Result<LocationResult> {
+    suspend fun getUserLocation(context: Context): UserLocationState<LocationResult> {
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
-        return suspendCoroutine { continuation ->
+        return suspendCoroutine {
             try {
                 fusedLocationClient
                     .lastLocation
                     .addOnSuccessListener { location: Location? ->
-                        if (location != null) {
-                            continuation.resume(
-                                Result.success(
-                                    LocationResult(
-                                        latitude = location.latitude,
-                                        longitude = location.longitude
-                                    )
+                        if (location == null) {
+                            Log.e(TAG, "Location is null")
+
+                            it.resume(
+                                UserLocationState.Error("Location not available")
+                            )
+
+                            return@addOnSuccessListener
+                        }
+
+                        it.resume(
+                            UserLocationState.Success(
+                                LocationResult(
+                                    latitude = location.latitude,
+                                    longitude = location.longitude
                                 )
                             )
-                        } else {
-                            Log.e(TAG, "Location is null")
-                            continuation.resume(
-                                Result.failure(Exception("Location not available"))
-                            )
-                        }
+                        )
                     }
-                    .addOnFailureListener { exception ->
-                        Log.e(TAG, "Failed to get location", exception)
-                        continuation.resume(Result.failure(exception))
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "Failed to get location", e)
+
+                        it.resume(
+                            UserLocationState.Error("Failed to get location: ${e.message}")
+                        )
                     }
             } catch (e: SecurityException) {
                 Log.e(TAG, "Security exception", e)
-                continuation.resume(Result.failure(e))
+                it.resume(
+                    UserLocationState.Error("Security exception: ${e.message}")
+                )
             }
         }
     }
@@ -100,27 +69,37 @@ object LocationService {
      * @param longitude Longitude coordinate
      * @return LocationInfo with city and country
      */
-    suspend fun getLocationInfo(
+    suspend fun getUserLocationInfo(
         context: Context,
         latitude: Double,
         longitude: Double
-    ): LocationInfo {
-        return suspendCoroutine { continuation ->
+    ): UserLocationState<LocationInfo> {
+        return suspendCoroutine {
             try {
                 val geocoder = Geocoder(context)
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     geocoder.getFromLocation(latitude, longitude, 1) { addresses ->
-                        continuation.resume(parseAddress(addresses))
+                        it.resume(
+                            UserLocationState.Success(parseAddress(addresses))
+                        )
                     }
-                } else {
-                    @Suppress("DEPRECATION")
-                    val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-                    continuation.resume(parseAddress(addresses))
+
+                    return@suspendCoroutine
                 }
+
+                @Suppress("DEPRECATION")
+                val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+
+                it.resume(
+                    UserLocationState.Success(parseAddress(addresses))
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "Geocoding error", e)
-                continuation.resume(LocationInfo.UNKNOWN)
+
+                it.resume(
+                    UserLocationState.Error("Unknown error")
+                )
             }
         }
     }
@@ -134,5 +113,24 @@ object LocationService {
         Log.d(TAG, "Geocoded: City=$city, Country=$country")
 
         return LocationInfo(city = city, country = country)
+    }
+}
+
+sealed class UserLocationState<out T> {
+    data class Success<T>(val data: T) : UserLocationState<T>()
+    data class Error(val message: String) : UserLocationState<Nothing>()
+}
+
+data class LocationResult(
+    val latitude: Double,
+    val longitude: Double
+)
+
+data class LocationInfo(
+    val city: String,
+    val country: String
+) {
+    companion object {
+        val UNKNOWN = LocationInfo("Unknown", "Unknown")
     }
 }
