@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         lifecycleScope.launch {
-            LocationRepository.initialize(this@MainActivity)
+            LocationRepository.initialize(applicationContext)
             PreferencesManager.initialize(this@MainActivity)
             ThemeManager.initialize(applicationContext)
         }

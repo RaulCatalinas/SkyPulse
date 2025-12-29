@@ -26,7 +26,7 @@ fun HomeContentView(
     val (
         permissionsGranted,
         requestPermission
-    ) = LocationRepository.RememberLocationPermission()
+    ) = LocationRepository.rememberLocationPermission()
 
     LaunchedEffect(Unit) {
         if (!permissionsGranted) requestPermission()
