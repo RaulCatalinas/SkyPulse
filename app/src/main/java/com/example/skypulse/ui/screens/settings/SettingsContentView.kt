@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -43,13 +41,10 @@ fun SettingsContentView() {
 
     // Load string resources
     val changeThemeText = stringResource(R.string.change_theme)
-    val changeLanguageText = stringResource(R.string.change_language)
     val settingsText = stringResource(R.string.settings)
     val lightThemeText = stringResource(R.string.light_theme)
     val darkThemeText = stringResource(R.string.dark_theme)
     val systemDefaultThemeText = stringResource(R.string.system_default_theme)
-    val spanishLanguageText = stringResource(R.string.spanish_language)
-    val englishLanguageText = stringResource(R.string.english_language)
 
     ModalDrawerSheet(modifier = Modifier.fillMaxWidth(0.75f)) {
         Column(
@@ -108,41 +103,6 @@ fun SettingsContentView() {
                             ThemeManager.setThemeMode(ThemeMode.SYSTEM)
                             themeIcon.value = ThemeManager.getIconTheme()
                             themeDropdownState.toggle()
-                        }
-                    )
-                }
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                NavigationDrawerItem(
-                    label = { CreateText(changeLanguageText) },
-                    selected = false,
-                    icon = {
-                        CreateIcon(
-                            Icons.Filled.Language,
-                            changeLanguageText
-                        )
-                    },
-                    onClick = {
-                        themeDropdownState.close()
-                        languageDropdownState.toggle()
-                    }
-                )
-
-                CreateDropdown(languageDropdownState) {
-                    DropdownMenuItem(
-                        text = { CreateText(spanishLanguageText) },
-                        onClick = {
-                            println("Changing the app language to spanish")
-                            languageDropdownState.toggle()
-                        }
-                    )
-
-                    DropdownMenuItem(
-                        text = { CreateText(englishLanguageText) },
-                        onClick = {
-                            println("Changing the app language to english")
-                            languageDropdownState.toggle()
                         }
                     )
                 }
