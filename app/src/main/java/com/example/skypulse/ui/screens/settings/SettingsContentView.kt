@@ -19,7 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.skypulse.R
 import com.example.skypulse.components.common.CreateDropdown
 import com.example.skypulse.components.common.CreateIcon
 import com.example.skypulse.components.common.CreateText
@@ -35,35 +37,44 @@ import com.example.skypulse.managers.ThemeManager
 fun SettingsContentView() {
     val themeDropdownState = rememberDropdownState()
     val languageDropdownState = rememberDropdownState()
-    val themeIcon = remember { mutableStateOf(ThemeManager.getIconTheme()) }
+    val themeIcon = remember {
+        mutableStateOf(ThemeManager.getIconTheme())
+    }
 
-    ModalDrawerSheet(
-        modifier = Modifier.fillMaxWidth(0.75f)
-    ) {
+    // Load string resources
+    val changeThemeText = stringResource(R.string.change_theme)
+    val changeLanguageText = stringResource(R.string.change_language)
+    val settingsText = stringResource(R.string.settings)
+    val lightThemeText = stringResource(R.string.light_theme)
+    val darkThemeText = stringResource(R.string.dark_theme)
+    val systemDefaultThemeText = stringResource(R.string.system_default_theme)
+    val spanishLanguageText = stringResource(R.string.spanish_language)
+    val englishLanguageText = stringResource(R.string.english_language)
+
+    ModalDrawerSheet(modifier = Modifier.fillMaxWidth(0.75f)) {
         Column(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxHeight()
+            modifier =
+                Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxHeight()
         ) {
             Spacer(Modifier.height(12.dp))
             CreateText(
-                "Settings",
+                text = settingsText,
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.titleLarge
             )
 
             HorizontalDivider()
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 NavigationDrawerItem(
-                    label = { CreateText("Change theme") },
+                    label = { CreateText(changeThemeText) },
                     selected = false,
                     icon = {
                         CreateIcon(
                             themeIcon.value,
-                            "Change theme"
+                            changeThemeText
                         )
                     },
                     onClick = {
@@ -74,7 +85,7 @@ fun SettingsContentView() {
 
                 CreateDropdown(themeDropdownState) {
                     DropdownMenuItem(
-                        text = { CreateText("Light") },
+                        text = { CreateText(lightThemeText) },
                         onClick = {
                             ThemeManager.setThemeMode(ThemeMode.LIGHT)
                             themeIcon.value = ThemeManager.getIconTheme()
@@ -83,7 +94,7 @@ fun SettingsContentView() {
                     )
 
                     DropdownMenuItem(
-                        text = { CreateText("Dark") },
+                        text = { CreateText(darkThemeText) },
                         onClick = {
                             ThemeManager.setThemeMode(ThemeMode.DARK)
                             themeIcon.value = ThemeManager.getIconTheme()
@@ -92,7 +103,7 @@ fun SettingsContentView() {
                     )
 
                     DropdownMenuItem(
-                        text = { CreateText("Synchronise with OS") },
+                        text = { CreateText(systemDefaultThemeText) },
                         onClick = {
                             ThemeManager.setThemeMode(ThemeMode.SYSTEM)
                             themeIcon.value = ThemeManager.getIconTheme()
@@ -102,16 +113,14 @@ fun SettingsContentView() {
                 }
             }
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 NavigationDrawerItem(
-                    label = { CreateText("Language") },
+                    label = { CreateText(changeLanguageText) },
                     selected = false,
                     icon = {
                         CreateIcon(
                             Icons.Filled.Language,
-                            "Change language"
+                            changeLanguageText
                         )
                     },
                     onClick = {
@@ -122,7 +131,7 @@ fun SettingsContentView() {
 
                 CreateDropdown(languageDropdownState) {
                     DropdownMenuItem(
-                        text = { CreateText("Spanish") },
+                        text = { CreateText(spanishLanguageText) },
                         onClick = {
                             println("Changing the app language to spanish")
                             languageDropdownState.toggle()
@@ -130,7 +139,7 @@ fun SettingsContentView() {
                     )
 
                     DropdownMenuItem(
-                        text = { CreateText("English") },
+                        text = { CreateText(englishLanguageText) },
                         onClick = {
                             println("Changing the app language to english")
                             languageDropdownState.toggle()

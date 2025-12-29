@@ -12,4 +12,12 @@
     <string name="humidity">Humedad</string>
     <string name="wind_speed">Velocidad del viento</string>
     <string name="daily_forecast">Pronóstico diario</string>
+    <string name="change_theme">Cambiar a claro/oscuro</string>
+    <string name="change_language">Cambiar idioma</string>
+    <string name="settings">Ajustes</string>
+    <string name="light_theme">Claro</string>
+    <string name="dark_theme">Oscuro</string>
+    <string name="system_default_theme">Predeterminado del sistema</string>
+    <string name="spanish_language">Español</string>
+    <string name="english_language">Inglés</string>
 </resources>
